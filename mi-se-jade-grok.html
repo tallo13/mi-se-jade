@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Food Map of Kavadarci</title>
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #e8f5e8 0%, #f0f9f0 50%, #e0f2e0 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    #map { width: 100%; height: 50vh; }
+    .food-button { background-color: #22C55E; }
+    .food-button:hover { background-color: #16A34A; }
+    input { border-color: #22C55E; }
+    #results {
+      width: 350px;
+      height: 100%;
+      background-color: #A7F3D0;
+      overflow-y: auto;
+      z-index: 1000;
+      padding: 1rem;
+      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+      border-radius: 0 8px 8px 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+    .search-container {
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+      margin: 1rem auto;
+    }
+    #clearSearch {
+      position: absolute;
+      right: 2rem; /* Adjusted to stay within input */
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #22C55E;
+      font-weight: bold;
+      z-index: 10;
+    }
+    .map-search-container {
+      width: 100%;
+      margin-left: 350px; /* Offset for results sidebar */
+      padding: 0 1rem;
+    }
+    /* Mobile and Tablet Adjustments */
+    @media (max-width: 768px) {
+      #results {
+        width: 100%;
+        position: relative;
+        height: auto;
+        max-height: 40vh;
+        margin-top: 1rem;
+        box-shadow: none;
+        border-radius: 8px;
+      }
+      #map {
+        height: 40vh;
+        margin-left: 0;
+      }
+      .search-container input {
+        padding-right: 2.5rem; /* Ensure space for X button */
+      }
+      .search-container {
+        margin: 1rem 0;
+      }
+      .map-search-container {
+        margin-left: 0;
+        padding: 0;
+      }
+    }
+    @media (min-width: 769px) and (max-width: 1024px) {
+      #results { width: 300px; }
+      .map-search-container { margin-left: 300px; }
+      #map { height: 60vh; }
+    }
+    @media (min-width: 769px) {
+      .map-search-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+  </style>
+</head>
+<body class="flex flex-col items-center min-h-screen">
+  <div class="container">
+    <div class="map-search-container">
+      <div class="flex mt-8 w-full max-w-md search-container">
+        <button id="searchButton" class="food-button text-white px-4 py-2 rounded-l-md">
+          Ми се јаде
+        </button>
+        <input id="searchInput" type="text" placeholder="Enter food (e.g., pizza, кебап)" 
+               class="flex-grow p-2 rounded-r-md border-2 focus:outline-none pr-8">
+        <span id="clearSearch" class="text-xl">×</span>
+      </div>
+      <div id="map" class="w-full"></div>
+    </div>
+    <div id="results"></div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // Real data for Kavadarci food places with url added
+    const foodPlaces = [
+      {
+        name: "Pizza „Jakomo“",
+        lat: 41.4358405,
+        lng: 22.0110744,
+        menus: [],
+        phone: "071 492 216",
+        opening_hours: [
+          "Monday: 8:00 AM – 12:00 AM",
+          "Tuesday: 8:00 AM – 12:00 AM",
+          "Wednesday: 8:00 AM – 12:00 AM",
+          "Thursday: 8:00 AM – 12:00 AM",
+          "Friday: 8:00 AM – 1:00 AM",
+          "Saturday: 8:00 AM – 1:00 AM",
+          "Sunday: 5:00 – 11:59 PM"
+        ],
+        url: ""
+      },
+      {
+        name: "Grill „Diroko“",
+        lat: 41.4336845,
+        lng: 22.0110333,
+        menus: [],
+        phone: "043 417 311",
+        opening_hours: [
+          "Monday: 8:00 AM – 10:00 PM",
+          "Tuesday: 8:00 AM – 10:00 PM",
+          "Wednesday: 8:00 AM – 10:00 PM",
+          "Thursday: 8:00 AM – 10:00 PM",
+          "Friday: 8:00 AM – 10:00 PM",
+          "Saturday: 8:00 AM – 10:00 PM",
+          "Sunday: 8:00 AM – 10:00 PM"
+        ],
+        url: ""
+      },
+      {
+        name: "Скара „Златна Рипка“",
+        lat: 41.4351145,
+        lng: 22.0123547,
+        menus: [],
+        phone: "043 419 319",
+        opening_hours: [
+          "Monday: 8:00 AM – 12:00 AM",
+          "Tuesday: 8:00 AM – 12:00 AM",
+          "Wednesday: 8:00 AM – 12:00 AM",
+          "Thursday: 8:00 AM – 12:00 AM",
+          "Friday: 8:00 AM – 12:00 AM",
+          "Saturday: 8:00 AM – 12:00 AM",
+          "Sunday: 8:00 AM – 12:00 AM"
+        ],
+        url: ""
+      },
+      {
+        name: "Fast Food „Marilyn“",
+        lat: 41.434199,
+        lng: 22.0115791,
+        menus: [],
+        phone: "",
+        opening_hours: [
+          "Monday: Closed",
+          "Tuesday: 8:00 AM – 10:30 PM",
+          "Wednesday: Closed",
+          "Thursday: 8:00 AM – 10:30 PM",
+          "Friday: Closed",
+          "Saturday: 8:00 AM – 3:30 PM",
+          "Sunday: Closed"
+        ],
+        url: ""
+      },
+      {
+        name: "Restaurant Angro Palace",
+        lat: 41.4399479,
+        lng: 22.0025397,
+        menus: [],
+        phone: "",
+        opening_hours: [
+          "Monday: 8:00 AM – 6:00 PM",
+          "Tuesday: 8:00 AM – 6:00 PM",
+          "Wednesday: 8:00 AM – 6:00 PM",
+          "Thursday: 8:00 AM – 6:00 PM",
+          "Friday: 8:00 AM – 6:00 PM",
+          "Saturday: 8:00 AM – 6:00 PM",
+          "Sunday: Closed"
+        ],
+        url: ""
+      },
+      {
+        name: "Moja Kujna",
+        lat: 41.4360611,
+        lng: 22.01278,
+        menus: [],
+        phone: "072 302 886",
+        opening_hours: [
+          "Monday: 8:00 AM – 5:00 PM",
+          "Tuesday: 8:00 AM – 5:00 PM",
+          "Wednesday: 8:00 AM – 5:00 PM",
+          "Thursday: 8:00 AM – 5:00 PM",
+          "Friday: 8:00 AM – 5:00 PM",
+          "Saturday: 8:00 AM – 3:00 PM",
+          "Sunday: Closed"
+        ],
+        url: ""
+      },
+      {
+        name: "„Gyro - Gyro“",
+        lat: 41.43714809999999,
+        lng: 22.0109726,
+        menus: [],
+        phone: "076 507 484",
+        opening_hours: [
+          "Monday: 9:00 AM – 1:00 AM",
+          "Tuesday: 9:00 AM – 1:00 AM",
+          "Wednesday: 9:00 AM – 1:00 AM",
+          "Thursday: 9:00 AM – 1:00 AM",
+          "Friday: 9:00 AM – 2:00 AM",
+          "Saturday: 9:00 AM – 2:00 AM",
+          "Sunday: 5:00 PM – 12:00 AM"
+        ],
+        url: ""
+      },
+      {
+        name: "Monako",
+        lat: 41.4386141,
+        lng: 22.0108442,
+        menus: [],
+        phone: "070 395 900",
+        opening_hours: [
+          "Monday: 8:00 AM – 12:00 AM",
+          "Tuesday: 8:00 AM – 12:00 AM",
+          "Wednesday: 8:00 AM – 12:00 AM",
+          "Thursday: 8:00 AM – 12:00 AM",
+          "Friday: 8:00 AM – 1:00 AM",
+          "Saturday: 8:00 AM – 1:00 AM",
+          "Sunday: 8:00 AM – 12:00 AM"
+        ],
+        url: ""
+      },
+      {
+        name: "Grill „Biser“",
+        lat: 41.4352165,
+        lng: 22.012903,
+        menus: [],
+        phone: "043 410 213",
+        opening_hours: [
+          "Monday: 9:00 AM – 11:30 PM",
+          "Tuesday: 9:00 AM – 11:30 PM",
+          "Wednesday: 9:00 AM – 11:30 PM",
+          "Thursday: 9:00 AM – 11:30 PM",
+          "Friday: 9:00 AM – 11:30 PM",
+          "Saturday: 9:00 AM – 11:30 PM",
+          "Sunday: 9:00 AM – 3:00 PM"
+        ],
+        url: ""
+      },
+      {
+        name: "Гостилница & Eснаф „Голчеви“",
+        lat: 41.4349802,
+        lng: 22.0130105,
+        menus: [],
+        phone: "078 300 723",
+        opening_hours: [
+          "Monday: 7:00 AM – 11:00 PM",
+          "Tuesday: 7:00 AM – 11:00 PM",
+          "Wednesday: 5:00 AM – 11:00 PM",
+          "Thursday: 7:00 AM – 11:00 PM",
+          "Friday: 5:00 AM – 11:00 PM",
+          "Saturday: 9:00 AM – 12:00 AM",
+          "Sunday: 5:00 AM – 5:00 PM"
+        ],
+        url: ""
+      },
+      {
+        name: "Restaurant Sino",
+        lat: 41.4390172,
+        lng: 22.0106356,
+        menus: [],
+        phone: "043 400 743",
+        opening_hours: [
+          "Monday: 8:00 AM – 1:00 AM",
+          "Tuesday: 8:00 AM – 1:00 AM",
+          "Wednesday: 8:00 AM – 1:00 AM",
+          "Thursday: 8:00 AM – 1:00 AM",
+          "Friday: 8:00 AM – 1:00 AM",
+          "Saturday: 8:00 AM – 1:00 AM",
+          "Sunday: 8:00 AM – 1:00 AM"
+        ],
+        url: ""
+      },
+      {
+        name: "Kaj Tomba",
+        lat: 41.4349127,
+        lng: 22.0128068,
+        menus: [],
+        phone: "078 394 016",
+        opening_hours: [],
+        url: ""
+      },
+      {
+        name: "Ресторан \"Под Јаворот\"",
+        lat: 41.4347858,
+        lng: 22.0153002,
+        menus: [],
+        phone: "075 416 336",
+        opening_hours: [
+          "Monday: 8:00 AM – 12:00 AM",
+          "Tuesday: 8:00 AM – 12:00 AM",
+          "Wednesday: 8:00 AM – 12:00 AM",
+          "Thursday: 8:00 AM – 12:00 AM",
+          "Friday: 8:00 AM – 1:00 AM",
+          "Saturday: 8:00 AM – 1:00 AM",
+          "Sunday: Closed"
+        ],
+        url: ""
+      },
+      {
+        name: "Ресторан „Кај Дане“",
+        lat: 41.4347389,
+        lng: 22.0152794,
+        menus: [],
+        phone: "070 525 249",
+        opening_hours: [
+          "Monday: 2:00 PM – 12:00 AM",
+          "Tuesday: 2:00 PM – 12:00 AM",
+          "Wednesday: 2:00 PM – 12:00 AM",
+          "Thursday: 2:00 PM – 12:00 AM",
+          "Friday: 2:00 PM – 1:00 AM",
+          "Saturday: 2:00 PM – 1:00 AM",
+          "Sunday: 3:00 PM – 1:00 AM"
+        ],
+        url: ""
+      },
+      {
+        name: "Seafood restaurant „Tivoli“",
+        lat: 41.4406971,
+        lng: 22.014216,
+        menus: [],
+        phone: "078 218 194",
+        opening_hours: [
+          "Monday: Open 24 hours",
+          "Tuesday: Open 24 hours",
+          "Wednesday: Open 24 hours",
+          "Thursday: Open 24 hours",
+          "Friday: Open 24 hours",
+          "Saturday: Open 24 hours",
+          "Sunday: Open 24 hours"
+        ],
+        url: ""
+      },
+      {
+        name: "Adanium Grill House",
+        lat: 41.4345672,
+        lng: 22.0123637,
+        menus: [],
+        phone: "",
+        opening_hours: [
+          "Monday: 9:00 AM – 9:00 PM",
+          "Tuesday: 9:00 AM – 9:00 PM",
+          "Wednesday: 9:00 AM – 9:00 PM",
+          "Thursday: 9:00 AM – 9:00 PM",
+          "Friday: 9:00 AM – 9:00 PM",
+          "Saturday: 9:00 AM – 9:00 PM",
+          "Sunday: 9:00 AM – 9:00 PM"
+        ],
+        url: ""
+      },
+      {
+        name: "Пицерија Спанџа",
+        lat: 41.4409983,
+        lng: 22.0127906,
+        menus: [],
+        phone: "043 414 707",
+        opening_hours: [
+          "Monday: 10:00 AM – 12:00 AM",
+          "Tuesday: 10:00 AM – 12:00 AM",
+          "Wednesday: 10:00 AM – 12:00 AM",
+          "Thursday: 10:00 AM – 12:00 AM",
+          "Friday: 10:00 AM – 12:00 AM",
+          "Saturday: 10:00 AM – 12:00 AM",
+          "Sunday: 12:00 – 7:00 PM"
+        ],
+        url: ""
+      },
+      {
+        name: "Fast food \"Centar\"",
+        lat: 41.4341083,
+        lng: 22.0128109,
+        menus: [],
+        phone: "071 269 299",
+        opening_hours: [
+          "Monday: 9:00 AM – 12:00 AM",
+          "Tuesday: 9:00 AM – 12:00 AM",
+          "Wednesday: 9:00 AM – 12:00 AM",
+          "Thursday: 9:00 AM – 12:00 AM",
+          "Friday: 9:00 AM – 2:30 AM",
+          "Saturday: 10:00 AM – 2:30 AM",
+          "Sunday: 10:00 AM – 12:00 AM"
+        ],
+        url: ""
+      },
+      {
+        name: "Пекара ГРИЖО-АС",
+        lat: 41.4346218,
+        lng: 22.0165449,
+        menus: [],
+        phone: "",
+        opening_hours: [],
+        url: ""
+      },
+      {
+        name: "Ресторан „Кино Бавча“",
+        lat: 41.4339875,
+        lng: 22.0124909,
+        menus: [],
+        phone: "",
+        opening_hours: [],
+        url: ""
+      },
+      {
+        name: "Kotle",
+        lat: 41.433849,
+        lng: 22.0137849,
+        menus: [],
+        phone: "",
+        opening_hours: [],
+        url: ""
+      },
+      {
+        name: "Скара „Кај Боки“",
+        lat: 41.4338699,
+        lng: 22.0132443,
+        menus: [],
+        phone: "",
+        opening_hours: [],
+        url: ""
+      },
+      {
+        name: "Pizza restaurant „Ramazzoti“",
+        lat: 41.441233,
+        lng: 22.011919,
+        menus: [],
+        phone: "",
+        opening_hours: [],
+        url: ""
+      },
+      {
+        name: "Restaurant „Kico“",
+        lat: 41.4412307,
+        lng: 22.0116744,
+        menus: [],
+        phone: "",
+        opening_hours: [],
+        url: ""
+      },
+      {
+        name: "Restaurant „Bellissimo“",
+        lat: 41.4389385,
+        lng: 22.0188154,
+        menus: [],
+        phone: "",
+        opening_hours: [],
+        url: ""
+      },
+      {
+        name: "Fast food DiOr 2024",
+        lat: 41.4334685,
+        lng: 22.0126024,
+        menus: [],
+        phone: "070 406 700",
+        opening_hours: [],
+        url: ""
+      },
+      {
+        name: "Restaurant „Exclusive“",
+        lat: 41.4410309,
+        lng: 22.0094544,
+        menus: [],
+        phone: "",
+        opening_hours: [],
+        url: ""
+      },
+      {
+        name: "Restaurant „Kalimero“",
+        lat: 41.4342682,
+        lng: 22.018601,
+        menus: [],
+        phone: "",
+        opening_hours: [],
+        url: ""
+      },
+      {
+        name: "Ladno Dolce",
+        lat: 41.4343592,
+        lng: 22.0193361,
+        menus: [],
+        phone: "",
+        opening_hours: [],
+        url: ""
+      },
+      {
+        name: "Restaurant „Buki“",
+        lat: 41.4326697,
+        lng: 22.0111956,
+        menus: [],
+        phone: "",
+        opening_hours: [],
+        url: ""
+      },
+      {
+        name: "Restaurant ,,Madzirka”",
+        lat: 41.4342516,
+        lng: 22.0193508,
+        menus: [],
+        phone: "",
+        opening_hours: [],
+        url: ""
+      },
+      {
+        name: "LAGUNA Lucnh",
+        lat: 41.4322886,
+        lng: 22.0128944,
+        menus: [],
+        phone: "",
+        opening_hours: [],
+        url: ""
+      },
+      {
+        name: "Kafana „Tabak“",
+        lat: 41.4323517,
+        lng: 22.0154697,
+        menus: [],
+        phone: "",
+        opening_hours: [],
+        url: ""
+      },
+      {
+        name: "Restaurant “Staro Maalo”",
+        lat: 41.4320154,
+        lng: 22.0134477,
+        menus: [],
+        phone: "",
+        opening_hours: [],
+        url: ""
+      },
+      {
+        name: "Fast food „Cambridge“",
+        lat: 41.4412024,
+        lng: 22.0196814,
+        menus: [],
+        phone: "072 205 289",
+        opening_hours: [],
+        url: ""
+      },
+      {
+        name: "Fast Food „Famosita“",
+        lat: 41.43357049999999,
+        lng: 22.0083618,
+        menus: [],
+        phone: "078 396 111",
+        opening_hours: [
+          "Monday: 6:00 AM – 12:00 PM",
+          "Tuesday: 6:00 AM – 12:00 PM",
+          "Wednesday: 6:00 AM – 12:00 PM",
+          "Thursday: 6:00 AM – 12:00 PM",
+          "Friday: 6:00 AM – 12:00 PM",
+          "Saturday: 6:00 AM – 12:00 PM",
+          "Sunday: Closed"
+        ],
+        url: ""
+      },
+      {
+        name: "Pizza Restaurant Fantasy",
+        lat: 41.4325739,
+        lng: 22.0182189,
+        menus: [],
+        phone: "043 550 088",
+        opening_hours: [
+          "Monday: 8:00 AM – 12:00 AM",
+          "Tuesday: 8:00 AM – 12:00 AM",
+          "Wednesday: 8:00 AM – 12:00 AM",
+          "Thursday: 8:00 AM – 12:00 AM",
+          "Friday: 8:00 AM – 12:00 AM",
+          "Saturday: 8:00 AM – 12:00 AM",
+          "Sunday: 8:00 AM – 12:00 AM"
+        ],
+        url: ""
+      },
+      {
+        name: "Ресторан Бриони - Restoran Brioni",
+        lat: 41.4346733,
+        lng: 22.0215274,
+        menus: [],
+        phone: "078 218 900",
+        opening_hours: [
+          "Monday: 8:00 AM – 12:00 AM",
+          "Tuesday: 8:00 AM – 12:00 AM",
+          "Wednesday: 8:00 AM – 12:00 AM",
+          "Thursday: 8:00 AM – 12:00 AM",
+          "Friday: 8:00 AM – 1:00 AM",
+          "Saturday: 8:00 AM – 1:00 AM",
+          "Sunday: 8:00 AM – 12:00 AM"
+        ],
+        url: ""
+      },
+      {
+        name: "El Gurman (skara i gostilnica)",
+        lat: 41.4422387,
+        lng: 22.007409,
+        menus: [],
+        phone: "078 507 407",
+        opening_hours: [
+          "Monday: 9:00 AM – 10:00 PM",
+          "Tuesday: 9:00 AM – 10:00 PM",
+          "Wednesday: 9:00 AM – 10:00 PM",
+          "Thursday: 9:00 AM – 10:00 PM",
+          "Friday: 9:00 AM – 12:00 AM",
+          "Saturday: 11:00 AM – 12:00 AM",
+          "Sunday: Closed"
+        ],
+        url: ""
+      },
+      {
+        name: "Pod lipite",
+        lat: 41.4306674,
+        lng: 22.0108911,
+        menus: [],
+        phone: "",
+        opening_hours: [
+          "Monday: Closed",
+          "Tuesday: Closed",
+          "Wednesday: Closed",
+          "Thursday: Closed",
+          "Friday: Closed",
+          "Saturday: Closed",
+          "Sunday: 9:00 AM – 12:00 AM"
+        ],
+        url: ""
+      },
+      {
+        name: "Restaurant Angro Kids",
+        lat: 41.4394067,
+        lng: 22.0023205,
+        menus: [],
+        phone: "",
+        opening_hours: [],
+        url: ""
+      },
+      {
+        name: "Hotel & Restaurant „Elitte“",
+        lat: 41.4417405,
+        lng: 21.9978522,
+        menus: [],
+        phone: "075 416 425",
+        opening_hours: [
+          "Monday: Open 24 hours",
+          "Tuesday: Open 24 hours",
+          "Wednesday: Open 24 hours",
+          "Thursday: Open 24 hours",
+          "Friday: Open 24 hours",
+          "Saturday: Open 24 hours",
+          "Sunday: Open 24 hours"
+        ],
+        url: ""
+      },
+      {
+        name: "Сендвичара „Ѕвончица“",
+        lat: 41.4219102,
+        lng: 22.0153466,
+        menus: [],
+        phone: "071 206 947",
+        opening_hours: [
+          "Monday: 7:00 AM – 12:00 AM",
+          "Tuesday: 7:00 AM – 12:00 AM",
+          "Wednesday: 7:00 AM – 12:00 AM",
+          "Thursday: 7:00 AM – 12:00 AM",
+          "Friday: 7:00 AM – 12:00 AM",
+          "Saturday: 7:00 AM – 12:00 AM",
+          "Sunday: Closed"
+        ],
+        url: ""
+      },
+      {
+        name: "Restaurant „Marija“",
+        lat: 41.4520314,
+        lng: 22.0241758,
+        menus: [],
+        phone: "043 418 004",
+        opening_hours: [
+          "Monday: 8:00 AM – 9:00 PM",
+          "Tuesday: 8:00 AM – 9:00 PM",
+          "Wednesday: 8:00 AM – 9:00 PM",
+          "Thursday: 8:00 AM – 9:00 PM",
+          "Friday: 8:00 AM – 9:00 PM",
+          "Saturday: 8:00 AM – 9:00 PM",
+          "Sunday: 8:00 AM – 9:00 PM"
+        ],
+        url: ""
+      },
+      {
+        name: "Кафана „Друже“",
+        lat: 41.4183362,
+        lng: 22.0182815,
+        menus: [],
+        phone: "078 419 235",
+        opening_hours: [],
+        url: ""
+      },
+      {
+        name: "Bakery „Wheat South“",
+        lat: 41.4419604,
+        lng: 22.0010613,
+        menus: [],
+        phone: "043 411 317",
+        opening_hours: [],
+        url: ""
+      },
+      {
+        name: "Sweetshop „Palma“",
+        lat: 41.4374128,
+        lng: 22.0110011,
+        menus: [],
+        phone: "077 574 300",
+        opening_hours: [
+          "Monday: 7:00 AM – 11:00 PM",
+          "Tuesday: 7:00 AM – 11:00 PM",
+          "Wednesday: 7:00 AM – 11:00 PM",
+          "Thursday: 7:00 AM – 11:00 PM",
+          "Friday: 7:00 AM – 11:00 PM",
+          "Saturday: 7:00 AM – 11:00 PM",
+          "Sunday: 7:00 AM – 11:00 PM"
+        ],
+        url: ""
+      },
+      {
+        name: "By Piem Design",
+        lat: 41.4353743,
+        lng: 22.0129179,
+        menus: [],
+        phone: "",
+        opening_hours: [],
+        url: ""
+      },
+      {
+        name: "Coffee , Pizza & Play BABALOO",
+        lat: 41.4407034,
+        lng: 22.0140874,
+        menus: [],
+        phone: "070 276 862",
+        opening_hours: [
+          "Monday: 9:00 AM – 10:00 PM",
+          "Tuesday: 9:00 AM – 10:00 PM",
+          "Wednesday: 9:00 AM – 10:00 PM",
+          "Thursday: 9:00 AM – 10:00 PM",
+          "Friday: 9:00 AM – 10:00 PM",
+          "Saturday: 9:00 AM – 10:00 PM",
+          "Sunday: 9:00 AM – 10:00 PM"
+        ],
+        url: ""
+      },
+      {
+        name: "Bakery „Mojsovi“",
+        lat: 41.4347168,
+        lng: 22.0114326,
+        menus: [],
+        phone: "",
+        opening_hours: [],
+        url: ""
+      },
+      {
+        name: "Пекара Кољо",
+        lat: 41.4396209,
+        lng: 22.0096496,
+        menus: [],
+        phone: "",
+        opening_hours: [],
+        url: ""
+      },
+      {
+        name: "Burek „Maestro“",
+        lat: 41.4339273,
+        lng: 22.0124974,
+        menus: [],
+        phone: "043 418 215",
+        opening_hours: [
+          "Monday: 5:00 AM – 1:00 PM",
+          "Tuesday: 5:00 AM – 1:00 PM",
+          "Wednesday: 5:00 AM – 1:00 PM",
+          "Thursday: 5:00 AM – 1:00 PM",
+          "Friday: 5:00 AM – 1:00 PM",
+          "Saturday: 5:00 AM – 1:00 PM",
+          "Sunday: Closed"
+        ],
+        url: ""
+      },
+      {
+        name: "Bakery Burek Blagica",
+        lat: 41.439628,
+        lng: 22.008307,
+        menus: [],
+        phone: "",
+        opening_hours: [
+          "Monday: 7:00 AM – 7:00 PM",
+          "Tuesday: 7:00 AM – 7:00 PM",
+          "Wednesday: 7:00 AM – 7:00 PM",
+          "Thursday: 7:00 AM – 7:00 PM",
+          "Friday: 7:00 AM – 7:00 PM",
+          "Saturday: 7:00 AM – 7:00 PM",
+          "Sunday: Closed"
+        ],
+        url: ""
+      },
+      {
+        name: "FROSINA torti i kolaci",
+        lat: 41.4397627,
+        lng: 22.0076936,
+        menus: [],
+        phone: "071 390 405",
+        opening_hours: [],
+        url: ""
+      },
+      {
+        name: "Pekara КОЉО",
+        lat: 41.4399591,
+        lng: 22.0059631,
+        menus: [],
+        phone: "076 244 405",
+        opening_hours: [],
+        url: ""
+      },
+      {
+        name: "Нефтенчеви",
+        lat: 41.4314945,
+        lng: 22.0083192,
+        menus: [],
+        phone: "",
+        opening_hours: [],
+        url: ""
+      },
+      {
+        name: "vam pek kavadarci",
+        lat: 41.4559942,
+        lng: 22.021729,
+        menus: [],
+        phone: "",
+        opening_hours: [],
+        url: ""
+      }
+    ];
+
+    // Use current user time (01:18 PM CEST, Wednesday, September 17, 2025)
+    const now = new Date("2025-09-17T13:18:00+02:00");
+    function getStatus(openingHours) {
+      if (!openingHours || openingHours.length === 0) return "";
+      const day = now.toLocaleString('en-US', { weekday: 'long' });
+      const dayEntry = openingHours.find(hour => hour.startsWith(day));
+      if (!dayEntry || dayEntry.includes("Closed") || dayEntry.includes("Open 24 hours")) {
+        return dayEntry && dayEntry.includes("Open 24 hours") ? "Status: Open 24 hours" : "Status: Closed";
+      }
+      const [_, timeRange] = dayEntry.split(": ");
+      const [openStr, closeStr] = timeRange.split(" – ").map(t => t.trim());
+      const [openHour, openMin] = openStr.replace(" AM", " AM").replace(" PM", " PM").match(/(\d+):(\d+)\s*(AM|PM)/i)?.slice(1, 3).map(Number) || [];
+      const [closeHour, closeMin] = closeStr.replace(" AM", " AM").replace(" PM", " PM").match(/(\d+):(\d+)\s*(AM|PM)/i)?.slice(1, 3).map(Number) || [];
+      let openTime = new Date(now);
+      openTime.setHours(openHour === 12 && openStr.includes("AM") ? 0 : openHour % 12 + (openStr.includes("PM") ? 12 : 0), openMin, 0, 0);
+      let closeTime = new Date(now);
+      closeTime.setHours(closeHour === 12 && closeStr.includes("AM") ? 0 : closeHour % 12 + (closeStr.includes("PM") ? 12 : 0), closeMin, 0, 0);
+      if (closeTime <= openTime) closeTime.setDate(closeTime.getDate() + 1); // Handle overnight
+      if (now < openTime || now > closeTime) return "Status: Closed";
+      const diffMs = closeTime - now;
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+      const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+      return `Status: Closes in ${diffHours}h:${diffMins}m`;
+    }
+
+    // Initialize Leaflet map
+    const map = L.map('map').setView([41.4333, 22.0167], 13); // Kavadarci center
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    // Add 5km radius circle
+    L.circle([41.4333, 22.0167], {radius: 5000, color: '#22C55E', fillOpacity: 0.1}).addTo(map);
+
+    let markers = [];
+    let selectedMarkerIndex = null;
+    let currentPlaces = foodPlaces;
+
+    function addMarkers(places) {
+      markers.forEach(marker => map.removeLayer(marker)); // Clear existing
+      markers = [];
+      places.forEach((place, index) => {
+        const marker = L.circleMarker([place.lat, place.lng], {
+          radius: 10,
+          color: index === selectedMarkerIndex ? '#C2410C' : '#F97316',
+          fillColor: index === selectedMarkerIndex ? '#C2410C' : '#F97316',
+          fillOpacity: 0.8,
+          weight: 2
+        })
+          .addTo(map)
+          .bindPopup(`<b>${place.name}</b><br>Menu: ${place.menus.map(m => `${m.item} - ${m.price}`).join(', ')}<br>Phone: ${place.phone || 'N/A'}<br>${place.url ? `Link: <a href="${place.url}" target="_blank">${place.url}</a><br>` : ''}${getStatus(place.opening_hours)}`);
+        markers.push(marker);
+      });
+      if (places.length > 0) {
+        map.fitBounds(markers.map(m => m.getLatLng()), {padding: [20, 20]});
+      }
+    }
+    addMarkers(foodPlaces); // Initial markers
+
+    // Search functionality
+    document.getElementById('searchButton').addEventListener('click', () => {
+      const query = document.getElementById('searchInput').value.toLowerCase().trim();
+      if (!query) {
+        currentPlaces = foodPlaces;
+        addMarkers(foodPlaces);
+        selectedMarkerIndex = null;
+        document.getElementById('results').innerHTML = '<p class="text-green-800 p-2">Showing all places</p>';
+        return;
+      }
+      const results = foodPlaces.filter(place =>
+        (place.menus.some(menu => menu.item.toLowerCase().includes(query)) || 
+         place.name.toLowerCase().includes(query))
+      );
+      currentPlaces = results;
+      selectedMarkerIndex = null;
+      if (results.length === 0) {
+        document.getElementById('results').innerHTML = '<p class="text-red-600 p-2">No matches found</p>';
+      } else {
+        document.getElementById('results').innerHTML = results.map((r, index) => {
+          const matchedMenu = r.menus.find(menu => menu.item.toLowerCase().includes(query));
+          return `<p class="text-green-800 mb-2 p-2 bg-white rounded shadow"><strong>${r.name}</strong><br>Menu: ${matchedMenu ? `${matchedMenu.item} - ${matchedMenu.price}` : 'N/A'}<br>Phone: ${r.phone || 'N/A'}<br>${r.url ? `Link: <a href="${r.url}" target="_blank">${r.url}</a><br>` : ''}${getStatus(r.opening_hours)}<br><a href="#" onclick="zoomToPlace(${index}, ${r.lat}, ${r.lng})" class="text-green-600 underline">View on Map</a></p>`;
+        }).join('');
+      }
+      addMarkers(results);
+    });
+
+    // Clear search input
+    document.getElementById('clearSearch').addEventListener('click', () => {
+      document.getElementById('searchInput').value = '';
+      currentPlaces = foodPlaces;
+      addMarkers(foodPlaces);
+      selectedMarkerIndex = null;
+      document.getElementById('results').innerHTML = '<p class="text-green-800 p-2">Showing all places</p>';
+    });
+
+    // Function to zoom to a specific place
+    function zoomToPlace(index, lat, lng) {
+      map.setView([lat, lng], 16);
+      selectedMarkerIndex = index;
+      addMarkers(currentPlaces);
+      markers[index].openPopup();
+    }
+
+    // Allow Enter key in search input
+    document.getElementById('searchInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        document.getElementById('searchButton').click();
+      }
+    });
+
+    // Initial results display
+    document.getElementById('results').innerHTML = '<p class="text-green-800 p-2">Showing all places</p>';
+  </script>
+</body>
+</html>
