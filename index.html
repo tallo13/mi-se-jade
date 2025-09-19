@@ -920,8 +920,8 @@
       }
     ];
 
-    // Use current user time (10:24 AM CEST, Thursday, September 18, 2025)
-    const now = new Date("2025-09-18T10:24:00+02:00");
+    // Get current time in Skopje time zone
+	const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Skopje" }));
     function getStatus(openingHours) {
       if (!openingHours || openingHours.length === 0) return "";
       const day = now.toLocaleString('en-US', { weekday: 'long' });
@@ -1060,3 +1060,4 @@
   </script>
 </body>
 </html>
+
