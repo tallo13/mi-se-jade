@@ -106,6 +106,38 @@
         align-items: center;
       }
     }
+    .menu-items-list {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+      background-color: #f0fff4;
+      border-radius: 4px;
+      margin-top: 8px;
+      padding: 0 10px;
+    }
+    .menu-items-list.expanded {
+      padding: 10px;
+    }
+    .expand-button {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      color: #166534;
+      font-weight: bold;
+      margin-top: 5px;
+    }
+    .expand-triangle {
+      width: 0; 
+      height: 0; 
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 8px solid #166534;
+      margin-right: 8px;
+      transition: transform 0.3s ease-out;
+    }
+    .expand-button.expanded .expand-triangle {
+      transform: rotate(180deg);
+    }
   </style>
 </head>
 <body class="flex flex-col items-center min-h-screen">
@@ -146,7 +178,7 @@
           "Thursday: 8:00 AM – 12:00 AM",
           "Friday: 8:00 AM – 1:00 AM",
           "Saturday: 8:00 AM – 1:00 AM",
-          "Sunday: 5:00 – 11:59 PM"
+          "Sunday: 5:00 PM – 11:59 PM"
         ],
         url: "https://pizzajakomo.com"
       },
@@ -260,7 +292,7 @@
           "Thursday: 9:00 AM – 1:00 AM",
           "Friday: 9:00 AM – 2:00 AM",
           "Saturday: 9:00 AM – 2:00 AM",
-          "Sunday: 5:00 PM – 12:00 AM"
+          "Sunday: 5:00 PM – 12:00 AM"
         ],
         url: "https://www.facebook.com/photo.php?fbid=1227116315785865&set=pb.100054625246682.-2207520000&type=3"
       },
@@ -376,13 +408,13 @@
         menus: [],
         phone: "070 525 249",
         opening_hours: [
-          "Monday: 2:00 PM – 12:00 AM",
-          "Tuesday: 2:00 PM – 12:00 AM",
-          "Wednesday: 2:00 PM – 12:00 AM",
-          "Thursday: 2:00 PM – 12:00 AM",
-          "Friday: 2:00 PM – 1:00 AM",
-          "Saturday: 2:00 PM – 1:00 AM",
-          "Sunday: 3:00 PM – 1:00 AM"
+          "Monday: 2:00 PM – 12:00 AM",
+          "Tuesday: 2:00 PM – 12:00 AM",
+          "Wednesday: 2:00 PM – 12:00 AM",
+          "Thursday: 2:00 PM – 12:00 AM",
+          "Friday: 2:00 PM – 1:00 AM",
+          "Saturday: 2:00 PM – 1:00 AM",
+          "Sunday: 3:00 PM – 1:00 AM"
         ],
         url: ""
       },
@@ -436,7 +468,7 @@
           "Thursday: 10:00 AM – 12:00 AM",
           "Friday: 10:00 AM – 12:00 AM",
           "Saturday: 10:00 AM – 12:00 AM",
-          "Sunday: 12:00 – 7:00 PM"
+          "Sunday: 12:00 PM – 7:00 PM"
         ],
         url: "https://www.instagram.com/picerijaspandza/"
       },
@@ -498,23 +530,23 @@
         lat: 41.441233,
         lng: 22.011919,
         menus: [
-          	{ category: "Пица", items: [{ name: "Тотал", price: "280 ден" }, { name: "Ramazzotti", price: "290/530 ден"}, { name: "Маргарита", price: "220/400 ден"}, { name: "Вегетаријана", price: "260/480 ден"}, { name: "Капричоза", price: "240/420 ден"}, { name: "Пеперони", price: "260/470 ден"}, { name: "Кватро формаџи", price: "270/500 ден"}, { name: "Пршуто", price: "320/560 ден"}] },
-          	{ category: "Пита", items: [{ name: "Свинска", price: "250 ден" }, { name: "Пилешка", price: "250 ден" }, { name: "Ramazzotti", price: "270 ден"}, { name: "Селска", price: "250 ден"}] },
-			{ category: "Паста", items: [{ name: "Карбонара", price: "200 ден" }, { name: "Болоњезе", price: "200 ден" }, { name: "Фунги", price: "180 ден" }, { name: "Кватро формаџи", price: "220 ден" }, { name: "Песто", price: "200 ден" }, { name: "Лазања", price: "220 ден" }] },
-			{ category: "Бургер", items: [{ name: "Ramazzotti", price: "250 ден" }, { name: "Биг бургер", price: "220 ден" }, { name: "American бургер", price: "250 ден" }, { name: "Mexican бургер", price: "270 ден" }, { name: "Happy бургер", price: "200 ден" }, { name: "Хамбургер", price: "130 ден" }, { name: "Чизбургер", price: "150 ден" }, { name: "Чикен", price: "140 ден" }] },
-			{ category: "Салата", items: [{ name: "Ramazzotti", price: "260 ден" }, { name: "Медитеранска", price: "220 ден" }, { name: "Со рукола и шкампи", price: "260 ден" }, { name: "Цезар", price: "200 ден" }, { name: "Капрезе", price: "240 ден" }] },
-			{ category: "Пилешко", items: [{ name: "Пилешко во кари", price: "240 ден" }, { name: "Роловано пилешко во сенф сос", price: "250 ден" }, { name: "Крцкаво пилешко со прелив од манго", price: "250 ден" }, { name: "Пилешко со авокадо", price: "250 ден" }, { name: "Полнето пилешко", price: "200 ден" }, { name: "Пилешко во горгонзола", price: "200 ден" }, { name: "Пилешки стек", price: "150 ден" }, { name: "Мисиркин стек", price: "240 ден" }, { name: "Мисиркин ражнич со ананас, мед и сенф", price: "250 ден" }] },
-			{ category: "Месо", items: [{ name: "Ramazzotti плескавица", price: "270 ден" }, { name: "Плескавица во фурна со кајмак", price: "230 ден" }, { name: "Плескавица со кајмак", price: "200 ден" }, { name: "Уштипци со кајмак", price: "200 ден" }, { name: "Ребро во фурна со слатко лут/BBQ сос", price: "270 ден" }] },
+          	{ category: "Пица", items: [{ name: "Тотал", price: "280 ден" }, { name: "Ramazzotti", price: "290/530 ден"}, { name: "Маргарита", price: "220/400 ден"}] },
+          	{ category: "Пита", items: [{ name: "Свинска", price: "250 ден" }, { name: "Пилешка", price: "250 ден" }, { name: "Ramazzotti", price: "270 ден"}] },
+			{ category: "Паста", items: [{ name: "Карбонара", price: "200 ден" }, { name: "Болоњезе", price: "200 ден" }, { name: "Фунги", price: "180 ден" }] },
+			{ category: "Бургер", items: [{ name: "Ramazzotti", price: "250 ден" }, { name: "Биг бургер", price: "220 ден" }, { name: "American бургер", price: "250 ден" }] },
+			{ category: "Салата", items: [{ name: "Ramazzotti", price: "260 ден" }, { name: "Медитеранска", price: "220 ден" }, { name: "Со рукола и шкампи", price: "260 ден" }] },
+			{ category: "Пилешко", items: [{ name: "Пилешко во кари", price: "240 ден" }, { name: "Роловано пилешко во сенф сос", price: "250 ден" }] },
+			{ category: "Месо", items: [{ name: "Ramazzotti плескавица", price: "270 ден" }, { name: "Плескавица во фурна со кајмак", price: "230 ден" }] }
         ],
         phone: "043 609 909",
         opening_hours: [
-          "Monday: 9:00 AM - 12:00 AM",
-          "Tuesday: 9:00 AM - 12:00 AM",
-          "Wednesday: 9:00 AM - 12:00 AM",
-          "Thursday: 9:00 AM - 12:00 AM",
-          "Friday: 9:00 AM - 1:00 AM",
-          "Saturday: 9:00 AM - 1:00 AM",
-          "Sunday: 9:00 AM - 12:00 AM"
+          "Monday: 9:00 AM – 12:00 AM",
+          "Tuesday: 9:00 AM – 12:00 AM",
+          "Wednesday: 9:00 AM – 12:00 AM",
+          "Thursday: 9:00 AM – 12:00 AM",
+          "Friday: 9:00 AM – 1:00 AM",
+          "Saturday: 9:00 AM – 1:00 AM",
+          "Sunday: 9:00 AM – 12:00 AM"
         ],
         url: "https://www.facebook.com/ramazzotti.kavadarci/"
       },
@@ -544,7 +576,7 @@
         lat: 41.4334685,
         lng: 22.0126024,
         menus: [
-			{ category: "Бургер", items: [{ name: "Хамбургер", price: "130/190 ден" }, { name: "Чизбургер", price: "160/220 ден" }, { name: "Бар би кју", price: "220/280 ден" }, { name: "Оѓин", price: "180/240 ден" }, { name: "Крцкав", price: "180 ден" }] },
+			{ category: "Бургер", items: [{ name: "Хамбургер", price: "130/190 ден" }, { name: "Чизбургер", price: "160/220 ден" }, { name: "Бар би кју", price: "220/280 ден" }] },
           	{ category: "Хот дог", items: [{ name: "Обичен", price: "100 ден" }, { name: "Озбилен", price: "190 ден" }] },
 			{ category: "Тост", items: [{ name: "Со кашкавал", price: "70 ден" }] }
 		],
@@ -791,13 +823,13 @@
 		],
         phone: "043 411 561",
         opening_hours: [
-          "Monday: 8:00 AM - 12:00 AM",
-          "Tuesday: 8:00 AM - 12:00 AM",
-          "Wednesday: 8:00 AM - 12:00 AM",
-          "Thursday: 8:00 AM - 12:00 AM",
-          "Friday: 8:00 AM - 12:00 AM",
-          "Saturday: 8:00 AM - 1:00 AM",
-          "Sunday: 8:00 AM - 1:00 AM"			
+          "Monday: 8:00 AM – 12:00 AM",
+          "Tuesday: 8:00 AM – 12:00 AM",
+          "Wednesday: 8:00 AM – 12:00 AM",
+          "Thursday: 8:00 AM – 12:00 AM",
+          "Friday: 8:00 AM – 12:00 AM",
+          "Saturday: 8:00 AM – 1:00 AM",
+          "Sunday: 8:00 AM – 1:00 AM"			
 		],
         url: "https://www.restoranexclusive.mk/meni/"
       },
@@ -1000,314 +1032,272 @@
           "Sunday: Closed"
         ],
         url: ""
-      },
-      {
-        name: "Restaurant „Marija“",
-        lat: 41.4520314,
-        lng: 22.0241758,
-        menus: [],
-        phone: "043 418 004",
-        opening_hours: [
-          "Monday: 8:00 AM – 9:00 PM",
-          "Tuesday: 8:00 AM – 9:00 PM",
-          "Wednesday: 8:00 AM – 9:00 PM",
-          "Thursday: 8:00 AM – 9:00 PM",
-          "Friday: 8:00 AM – 9:00 PM",
-          "Saturday: 8:00 AM – 9:00 PM",
-          "Sunday: 8:00 AM – 9:00 PM"
-        ],
-        url: ""
-      },
-      {
-        name: "Кафана „Друже“",
-        lat: 41.4183362,
-        lng: 22.0182815,
-        menus: [],
-        phone: "078 419 235",
-        opening_hours: [],
-        url: ""
-      },
-      {
-        name: "Bakery „Wheat South“",
-        lat: 41.4419604,
-        lng: 22.0010613,
-        menus: [],
-        phone: "043 411 317",
-        opening_hours: [],
-        url: ""
-      },
-      {
-        name: "Sweetshop „Palma“",
-        lat: 41.4374128,
-        lng: 22.0110011,
-        menus: [],
-        phone: "077 574 300",
-        opening_hours: [
-          "Monday: 7:00 AM – 11:00 PM",
-          "Tuesday: 7:00 AM – 11:00 PM",
-          "Wednesday: 7:00 AM – 11:00 PM",
-          "Thursday: 7:00 AM – 11:00 PM",
-          "Friday: 7:00 AM – 11:00 PM",
-          "Saturday: 7:00 AM – 11:00 PM",
-          "Sunday: 7:00 AM – 11:00 PM"
-        ],
-        url: ""
-      },
-      {
-        name: "By Piem Design",
-        lat: 41.4353743,
-        lng: 22.0129179,
-        menus: [],
-        phone: "",
-        opening_hours: [],
-        url: ""
-      },
-      {
-        name: "Coffee , Pizza & Play BABALOO",
-        lat: 41.4407034,
-        lng: 22.0140874,
-        menus: [],
-        phone: "070 276 862",
-        opening_hours: [
-          "Monday: 9:00 AM – 10:00 PM",
-          "Tuesday: 9:00 AM – 10:00 PM",
-          "Wednesday: 9:00 AM – 10:00 PM",
-          "Thursday: 9:00 AM – 10:00 PM",
-          "Friday: 9:00 AM – 10:00 PM",
-          "Saturday: 9:00 AM – 10:00 PM",
-          "Sunday: 9:00 AM – 10:00 PM"
-        ],
-        url: ""
-      },
-      {
-        name: "Bakery „Mojsovi“",
-        lat: 41.4347168,
-        lng: 22.0114326,
-        menus: [],
-        phone: "",
-        opening_hours: [],
-        url: ""
-      },
-      {
-        name: "Пекара Кољо",
-        lat: 41.4396209,
-        lng: 22.0096496,
-        menus: [],
-        phone: "",
-        opening_hours: [],
-        url: ""
-      },
-      {
-        name: "Burek „Maestro“",
-        lat: 41.4339273,
-        lng: 22.0124974,
-        menus: [],
-        phone: "043 418 215",
-        opening_hours: [
-          "Monday: 5:00 AM – 1:00 PM",
-          "Tuesday: 5:00 AM – 1:00 PM",
-          "Wednesday: 5:00 AM – 1:00 PM",
-          "Thursday: 5:00 AM – 1:00 PM",
-          "Friday: 5:00 AM – 1:00 PM",
-          "Saturday: 5:00 AM – 1:00 PM",
-          "Sunday: Closed"
-        ],
-        url: ""
-      },
-      {
-        name: "Bakery Burek Blagica",
-        lat: 41.439628,
-        lng: 22.008307,
-        menus: [],
-        phone: "",
-        opening_hours: [
-          "Monday: 7:00 AM – 7:00 PM",
-          "Tuesday: 7:00 AM – 7:00 PM",
-          "Wednesday: 7:00 AM – 7:00 PM",
-          "Thursday: 7:00 AM – 7:00 PM",
-          "Friday: 7:00 AM – 7:00 PM",
-          "Saturday: 7:00 AM – 7:00 PM",
-          "Sunday: Closed"
-        ],
-        url: ""
-      },
-      {
-        name: "FROSINA torti i kolaci",
-        lat: 41.4397627,
-        lng: 22.0076936,
-        menus: [],
-        phone: "071 390 405",
-        opening_hours: [],
-        url: ""
-      },
-      {
-        name: "Pekara КОЉО",
-        lat: 41.4399591,
-        lng: 22.0059631,
-        menus: [],
-        phone: "076 244 405",
-        opening_hours: [],
-        url: ""
-      },
-      {
-        name: "Нефтенчеви",
-        lat: 41.4314945,
-        lng: 22.0083192,
-        menus: [],
-        phone: "",
-        opening_hours: [],
-        url: ""
-      },
-      {
-        name: "vam pek kavadarci",
-        lat: 41.4559942,
-        lng: 22.021729,
-        menus: [],
-        phone: "",
-        opening_hours: [],
-        url: ""
       }
     ];
 
-    // Get current time in Skopje time zone
-	const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Skopje" }));
-    function getStatus(openingHours) {
-      if (!openingHours || openingHours.length === 0) return "";
-      const day = now.toLocaleString('en-US', { weekday: 'long' });
-      const dayEntry = openingHours.find(hour => hour.startsWith(day));
-      if (!dayEntry || dayEntry.includes("Closed") || dayEntry.includes("Open 24 hours")) {
-        return dayEntry && dayEntry.includes("Open 24 hours") ? "Status: Open 24 hours" : "Status: Closed";
-      }
-      const [_, timeRange] = dayEntry.split(": ");
-      // Accept both EN DASH and hyphen as separator
-      let timeRangeParts = timeRange.split(/ – |-/);
-      if (timeRangeParts.length < 2) return "Затворено"; // Defensive, fallback if parsing fails
-      const [openStr, closeStr] = timeRangeParts.map(t => t.trim());
-      const openMatch = openStr.replace(" AM", " AM").replace(" PM", " PM").match(/(\d+):(\d+)\s*(AM|PM)/i);
-      const closeMatch = closeStr.replace(" AM", " AM").replace(" PM", " PM").match(/(\d+):(\d+)\s*(AM|PM)/i);
-      if (!openMatch || !closeMatch) return "Затворено"; // Defensive, fallback if parsing fails
-      const [openHour, openMin, openPeriod] = openMatch.slice(1, 4);
-      const [closeHour, closeMin, closePeriod] = closeMatch.slice(1, 4);
-      let openTime = new Date(now);
-      openTime.setHours(
-        (parseInt(openHour) % 12) + (openPeriod.toUpperCase() === "PM" ? 12 : 0),
-        parseInt(openMin), 0, 0
-      );
-      let closeTime = new Date(now);
-      closeTime.setHours(
-        (parseInt(closeHour) % 12) + (closePeriod.toUpperCase() === "PM" ? 12 : 0),
-        parseInt(closeMin), 0, 0
-      );
-      if (closeTime <= openTime) closeTime.setDate(closeTime.getDate() + 1); // Handle overnight
-      if (now < openTime || now > closeTime) return "Затворено";
-      const diffMs = closeTime - now;
-      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-      const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-      return `Затвара за ${diffHours}h:${diffMins}m`;
-    }
+    document.addEventListener('DOMContentLoaded', () => {
+      const map = L.map('map').setView([41.4333, 22.0114], 15);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
 
-    // Initialize Leaflet map
-    const map = L.map('map').setView([41.4333, 22.0167], 13); // Kavadarci center
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(map);
+      const searchInput = document.getElementById('searchInput');
+      const searchButton = document.getElementById('searchButton');
+      const clearSearch = document.getElementById('clearSearch');
+      const resultsContainer = document.getElementById('results');
+      let markers = [];
+      let selectedMarker = null;
 
-    // Add 5km radius circle
-    L.circle([41.4333, 22.0167], {radius: 5000, color: '#22C55E', fillOpacity: 0.1}).addTo(map);
-
-    let markers = [];
-    let selectedMarkerIndex = null;
-    let currentPlaces = foodPlaces;
-
-    function addMarkers(places) {
-      markers.forEach(marker => map.removeLayer(marker)); // Clear existing
-      markers = [];
-      places.forEach((place, index) => {
-        const marker = L.circleMarker([place.lat, place.lng], {
-          radius: 10,
-          color: index === selectedMarkerIndex ? '#C2410C' : '#F97316',
-          fillColor: index === selectedMarkerIndex ? '#C2410C' : '#F97316',
-          fillOpacity: 0.8,
-          weight: 2
-        })
-          .addTo(map)
-          .bindPopup(() => {
-            const query = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
-            let menuInfo = 'Мени: N/A';
-            if (query) {
-              const matchedCategory = place.menus.find(cat => cat.category.toLowerCase().includes(query));
-              const matchedItem = place.menus.flatMap(cat => cat.items).find(item => item.name.toLowerCase().includes(query));
-              menuInfo = matchedItem ? `Мени: ${matchedItem.name} - ${matchedItem.price}` : (matchedCategory ? `Мени: ${matchedCategory.category} има` : 'Мени: N/A');
-            }
-            return `<b>${place.name}</b><br>${menuInfo}<br>Тел: ${place.phone || 'N/A'}<br>${place.url ? `Линк: <a href="${place.url}" target="_blank">${place.url}</a><br>` : ''}${getStatus(place.opening_hours)}`;
-          });
-        markers.push(marker);
+      const defaultIcon = new L.Icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
       });
-      if (places.length > 0) {
-        map.fitBounds(markers.map(m => m.getLatLng()), {padding: [20, 20]});
-      }
-    }
-    addMarkers(foodPlaces); // Initial markers
 
-    // Search functionality
-    document.getElementById('searchButton').addEventListener('click', () => {
-      const query = document.getElementById('searchInput').value.toLowerCase().trim();
-      if (!query) {
-        currentPlaces = foodPlaces;
-        addMarkers(foodPlaces);
-        selectedMarkerIndex = null;
-        document.getElementById('results').innerHTML = '<p class="text-green-800 p-2">Showing all places</p>';
-        return;
+      const selectedIcon = new L.Icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      });
+
+      map.on('click', () => {
+        if (selectedMarker) {
+          selectedMarker.setIcon(defaultIcon);
+          selectedMarker = null;
+        }
+      });
+
+      function getOpeningHoursStatus(openingHours) {
+        if (!openingHours || openingHours.length === 0) {
+          return { text: "Работно време непознато", color: "text-gray-500" };
+        }
+
+        const now = new Date();
+        const dayOfWeek = now.toLocaleString('en-US', { weekday: 'long' });
+
+        const todayHoursString = openingHours.find(h => h.startsWith(dayOfWeek));
+
+        if (!todayHoursString || todayHoursString.includes("Closed")) {
+          return { text: "Затворено", color: "text-red-500" };
+        }
+        if (todayHoursString.includes("Open 24 hours")) {
+          return { text: "Отворено 24 часа", color: "text-green-600" };
+        }
+
+        try {
+          const timeString = todayHoursString.split(': ')[1];
+          const [startStr, endStr] = timeString.split(' – ');
+
+          const parseTime = (timeStr) => {
+            const date = new Date();
+            let [time, period] = timeStr.split(' ');
+            if(!period) period = time.includes('AM') ? 'AM' : 'PM'; // Handle 12:00AM case
+            time = time.replace('AM', '').replace('PM', '');
+            let [hours, minutes] = time.split(':');
+            hours = parseInt(hours);
+            minutes = parseInt(minutes) || 0;
+
+            if (period && period.toUpperCase() === 'PM' && hours < 12) {
+              hours += 12;
+            }
+            if (period && period.toUpperCase() === 'AM' && hours === 12) { // Midnight case
+              hours = 0;
+            }
+            date.setHours(hours, minutes, 0, 0);
+            return date;
+          };
+
+          const startTime = parseTime(startStr);
+          const endTime = parseTime(endStr);
+          
+          if (endTime < startTime) { // Closes next day
+            endTime.setDate(endTime.getDate() + 1);
+            if (now < startTime && now.getDate() === startTime.getDate()) {
+                 now.setDate(now.getDate() + 1);
+            }
+          }
+
+           if (now < startTime) { // Not yet open
+             return { text: `Отвoра во ${startTime.getHours().toString().padStart(2, '0')}:${startTime.getMinutes().toString().padStart(2, '0')}`, color: "text-blue-500" };
+           }
+
+          if (now < endTime) { // Open
+            return { text: `Затвора во ${endTime.getHours().toString().padStart(2, '0')}:${endTime.getMinutes().toString().padStart(2, '0')}`, color: "text-green-600" };
+          } else { // Closed for today
+             return { text: "Затворено", color: "text-red-500" };
+          }
+
+        } catch (e) {
+            console.error("Error parsing opening hours: ", e, "for string:", todayHoursString);
+            return { text: "Работно време непознато", color: "text-gray-500" };
+        }
       }
-      const results = foodPlaces.filter(place =>
-        place.menus.some(category =>
-          category.category.toLowerCase().includes(query) ||
-          category.items.some(item => item.name.toLowerCase().includes(query))
-        ) || place.name.toLowerCase().includes(query)
-      );
-      currentPlaces = results;
-      selectedMarkerIndex = null;
-      if (results.length === 0) {
-        document.getElementById('results').innerHTML = '<p class="text-red-600 p-2">No matches found</p>';
-      } else {
-        document.getElementById('results').innerHTML = results.map((r, index) => {
-          const matchedCategory = r.menus.find(cat => cat.category.toLowerCase().includes(query));
-          const matchedItem = r.menus.flatMap(cat => cat.items).find(item => item.name.toLowerCase().includes(query));
-          const menuInfo = matchedItem ? `${matchedItem.name} - ${matchedItem.price}` : (matchedCategory ? `${matchedCategory.category} има` : 'N/A');
-          return `<p class="text-green-800 mb-2 p-2 bg-white rounded shadow"><strong>${r.name}</strong><br>Мени: ${menuInfo}<br>Тел: ${r.phone || 'N/A'}<br>${r.url ? `Линк: <a href="${r.url}" target="_blank">${r.url}</a><br>` : ''}${getStatus(r.opening_hours)}<br><a href="#" onclick="zoomToPlace(${index}, ${r.lat}, ${r.lng})" class="text-green-600 underline">Прикажи на мапа</a></p>`;
-        }).join('');
+
+      function displayResults(places, searchTerm = '', showCards = true) {
+        resultsContainer.innerHTML = '';
+        markers.forEach(marker => map.removeLayer(marker));
+        markers = [];
+
+        if (places.length === 0 && showCards) {
+          resultsContainer.innerHTML = '<p class="text-center text-gray-600">Нема резултати.</p>';
+          return;
+        }
+
+        places.forEach((place, index) => {
+          const marker = L.marker([place.lat, place.lng], { icon: defaultIcon }).addTo(map);
+          
+          const searchTermLower = searchTerm.toLowerCase();
+          let isCategorySearch = false;
+          let matchingMenu;
+          let matchingItem;
+
+          if(searchTerm) { // Only search for menus if a search term exists
+            isCategorySearch = place.menus.some(menu => menu.category.toLowerCase().includes(searchTermLower));
+            if (isCategorySearch) {
+                matchingMenu = place.menus.find(menu => menu.category.toLowerCase().includes(searchTermLower));
+            } else {
+                for (const menu of place.menus) {
+                    matchingItem = menu.items.find(item => item.name.toLowerCase().includes(searchTermLower));
+                    if (matchingItem) {
+                        matchingMenu = menu;
+                        break;
+                    }
+                }
+            }
+          }
+          
+          let popupContent = `<b>${place.name}</b><br><a href="https://www.google.com/maps?q=${place.lat},${place.lng}" target="_blank" style="color: blue; text-decoration: underline;">Open in Google Maps</a>`;
+          if (matchingMenu) {
+            const itemsList = matchingMenu.items.map(item => `${item.name}: ${item.price}`).join('<br>');
+            popupContent += `<br><br><b>${matchingMenu.category}:</b><br>${itemsList}`;
+          }
+
+          marker.bindPopup(popupContent);
+          
+          marker.on('click', (e) => {
+            L.DomEvent.stopPropagation(e);
+            if (selectedMarker) {
+              selectedMarker.setIcon(defaultIcon);
+            }
+            marker.setIcon(selectedIcon);
+            selectedMarker = marker;
+          });
+          
+          markers.push(marker);
+
+          if (showCards) {
+            const resultCard = document.createElement('div');
+            resultCard.className = 'p-4 mb-2 rounded-lg shadow-md bg-white';
+            
+            const hoursStatus = getOpeningHoursStatus(place.opening_hours);
+            let menuContent = '';
+
+            if (isCategorySearch && matchingMenu) {
+              const itemsHtml = matchingMenu.items.map(item => `<div>${item.name}: ${item.price}</div>`).join('');
+              menuContent = `
+                <div class="expand-button" data-index="${index}">
+                  <span class="expand-triangle"></span>
+                  <span>${matchingMenu.category}</span>
+                </div>
+                <div class="menu-items-list" id="menu-list-${index}">
+                  ${itemsHtml}
+                </div>
+              `;
+            } else if (matchingItem) {
+                menuContent = `<div class="mt-2 font-semibold text-green-700">${matchingItem.name}: ${matchingItem.price}</div>`;
+            }
+
+
+            resultCard.innerHTML = `
+              <h3 class="text-lg font-bold text-green-800">${place.name}</h3>
+              <p class="text-sm text-gray-600">${place.phone}</p>
+              <p class="text-sm font-semibold ${hoursStatus.color}">${hoursStatus.text}</p>
+              ${place.url ? `<a href="${place.url}" target="_blank" class="text-blue-500 text-sm hover:underline">Visit Website</a><br>` : ''}
+              <button class="text-sm text-blue-600 hover:underline show-on-map-btn" data-lat="${place.lat}" data-lng="${place.lng}">Прикажи на мапа</button>
+              ${menuContent}
+            `;
+            resultsContainer.appendChild(resultCard);
+          }
+        });
+        
+        document.querySelectorAll('.expand-button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const container = e.currentTarget;
+                const index = container.getAttribute('data-index');
+                const menuList = document.getElementById(`menu-list-${index}`);
+                
+                container.classList.toggle('expanded');
+                menuList.classList.toggle('expanded');
+
+                if (menuList.classList.contains('expanded')) {
+                    menuList.style.maxHeight = menuList.scrollHeight + "px";
+                } else {
+                    menuList.style.maxHeight = '0';
+                }
+            });
+        });
+
+        document.querySelectorAll('.show-on-map-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const lat = parseFloat(e.currentTarget.getAttribute('data-lat'));
+                const lng = parseFloat(e.currentTarget.getAttribute('data-lng'));
+                const markerToSelect = markers.find(m => m.getLatLng().lat === lat && m.getLatLng().lng === lng);
+                
+                map.setView([lat, lng], 17);
+
+                if (markerToSelect) {
+                    if (selectedMarker) {
+                        selectedMarker.setIcon(defaultIcon);
+                    }
+                    markerToSelect.setIcon(selectedIcon);
+                    markerToSelect.openPopup();
+                    selectedMarker = markerToSelect;
+                }
+            });
+        });
       }
-      addMarkers(results);
+
+      function performSearch() {
+        const query = searchInput.value.toLowerCase();
+        if (query.trim() === '') {
+          displayResults(foodPlaces, '', false);
+          return;
+        }
+
+        const results = foodPlaces.filter(place => {
+          const nameMatch = place.name.toLowerCase().includes(query);
+          const menuMatch = place.menus.some(menu => 
+            menu.category.toLowerCase().includes(query) || 
+            menu.items.some(item => item.name.toLowerCase().includes(query))
+          );
+          return nameMatch || menuMatch;
+        });
+
+        displayResults(results, query, true);
+      }
+
+      searchButton.addEventListener('click', performSearch);
+      searchInput.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') {
+          performSearch();
+        }
+      });
+      clearSearch.addEventListener('click', () => {
+        searchInput.value = '';
+        displayResults(foodPlaces, '', false);
+      });
+
+      // Initial display: only pins on map, no cards in results
+      displayResults(foodPlaces, '', false);
     });
-
-    // Clear search input
-    document.getElementById('clearSearch').addEventListener('click', () => {
-      document.getElementById('searchInput').value = '';
-      currentPlaces = foodPlaces;
-      addMarkers(foodPlaces);
-      selectedMarkerIndex = null;
-      document.getElementById('results').innerHTML = '<p class="text-green-800 p-2">Прикажени се сите места</p>';
-    });
-
-    // Function to zoom to a specific place
-    function zoomToPlace(index, lat, lng) {
-      map.setView([lat, lng], 16);
-      selectedMarkerIndex = index;
-      addMarkers(currentPlaces);
-      markers[index].openPopup();
-    }
-
-    // Allow Enter key in search input
-    document.getElementById('searchInput').addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        document.getElementById('searchButton').click();
-      }
-    });
-
-    // Initial results display
-    document.getElementById('results').innerHTML = '<p class="text-green-800 p-2">Прикажани се сите места</p>';
   </script>
 </body>
 </html>
-
-
