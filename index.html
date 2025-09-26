@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="description" content="Interactive map of food places in Kavadarci, Macedonia. Search by menu items and find restaurants, fast food, and bakeries.">
+  <meta name="description" content="Interactive food places in Kavadarci, Macedonia. Search by menu items and find restaurants, fast food, and bakeries.">
   <meta name="keywords" content="Kavadarci food, restaurants Kavadarci, pizza Kavadarci, burek Kavadarci, map">
   <meta property="og:title" content="Food Map of Kavadarci">
   <meta property="og:description" content="Find the best food places in Kavadarci with menus and locations.">
@@ -11,10 +11,41 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="google-site-verification" content="oExMqB6xdh0CLQyQNOS4r-OR5jaiH8BXiub4ubuZjQk" />
   <title>Food Map of Kavadarci - Ми се јаде</title>
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <!-- Tailwind CSS via CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .items-center { align-items: center; }
+    .min-h-screen { min-height: 100vh; }
+    .mt-8 { margin-top: 2rem; }
+    .w-full { width: 100%; }
+    .max-w-md { max-width: 28rem; }
+    .text-white { color: white; }
+    .px-4 { padding-left: 1rem; padding-right: 1rem; }
+    .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+    .rounded-l-md { border-top-left-radius: 0.375rem; border-bottom-left-radius: 0.375rem; }
+    .rounded-r-md { border-top-right-radius: 0.375rem; border-bottom-right-radius: 0.375rem; }
+    .flex-grow { flex-grow: 1; }
+    .p-2 { padding: 0.5rem; }
+    .border-2 { border-width: 2px; }
+    .focus\:outline-none:focus { outline: none; }
+    .text-xl { font-size: 1.25rem; }
+    .text-lg { font-size: 1.125rem; }
+    .font-bold { font-weight: bold; }
+    .text-green-800 { color: #166534; }
+    .text-sm { font-size: 0.875rem; }
+    .text-gray-600 { color: #4B5563; }
+    .font-semibold { font-weight: 600; }
+    .text-red-500 { color: #EF4444; }
+    .text-green-600 { color: #059669; }
+    .text-blue-500 { color: #3B82F6; }
+    .text-gray-500 { color: #6B7280; }
+    .hover\:underline:hover { text-decoration: underline; }
+    .mt-1 { margin-top: 0.25rem; }
+    .inline-block { display: inline-block; }
+    .mt-2 { margin-top: 0.5rem; }
+    .text-green-700 { color: #15803D; }
+    .text-center { text-align: center; }
+    .col-span-full { grid-column: 1 / -1; }
   <style>
     body {
       background: linear-gradient(135deg, #e8f5e8 0%, #f0f9f0 50%, #e0f2e0 100%);
@@ -24,145 +55,169 @@
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
-    #map { width: 100%; height: 50vh; }
     .food-button { background-color: #22C55E; }
     .food-button:hover { background-color: #16A34A; }
     input { border-color: #22C55E; }
-    #results {
-      width: 350px;
-      height: 100%;
-      background-color: #A7F3D0;
-      overflow-y: auto;
-      z-index: 1000;
-      padding: 1rem;
-      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
-      border-radius: 0 8px 8px 0;
-      position: fixed;
-      top: 0;
-      left: 0;
-    }
+    
     .container {
       display: flex;
       flex-direction: column;
       align-items: center;
       width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
     }
+    
     .search-container {
       position: relative;
       width: 100%;
       max-width: 400px;
-      margin: 1rem auto;
+      margin: 1rem auto 2rem auto;
     }
+    
     #clearSearch {
       position: absolute;
-      right: 2rem; /* Adjusted to stay within input */
+      right: 1rem;
       top: 50%;
       transform: translateY(-50%);
       cursor: pointer;
       color: #22C55E;
       font-weight: bold;
       z-index: 10;
+      font-size: 1.5rem;
     }
-    .map-search-container {
+    
+    .search-container input {
+      padding-right: 3rem;
+    }
+    
+    #cards-container {
       width: 100%;
-      margin-left: 350px; /* Offset for results sidebar */
-      padding: 0 1rem;
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: 1fr;
     }
-    /* Mobile and Tablet Adjustments */
+    
+    /* Mobile view - vertical cards */
     @media (max-width: 768px) {
-      #results {
+      #cards-container {
+        grid-template-columns: 1fr;
+      }
+      .card {
         width: 100%;
-        position: relative;
-        height: auto;
-        max-height: 40vh;
-        margin-top: 1rem;
-        box-shadow: none;
-        border-radius: 8px;
-      }
-      #map {
-        height: 40vh;
-        margin-left: 0;
-      }
-      .search-container input {
-        padding-right: 2.5rem; /* Ensure space for X button */
-      }
-      .search-container {
-        margin: 1rem 0;
-      }
-      .map-search-container {
-        margin-left: 0;
-        padding: 0;
       }
     }
+    
+    /* Tablet view - 2 columns */
     @media (min-width: 769px) and (max-width: 1024px) {
-      #results { width: 300px; }
-      .map-search-container { margin-left: 300px; }
-      #map { height: 60vh; }
-    }
-    @media (min-width: 769px) {
-      .map-search-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+      #cards-container {
+        grid-template-columns: repeat(2, 1fr);
       }
     }
+    
+    /* Desktop view - calendar-like tile layout */
+    @media (min-width: 1025px) {
+      #cards-container {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    
+    .card {
+      background: white;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    
+    .expand-button {
+      cursor: pointer;
+      padding: 0.5rem;
+      background-color: #F3F4F6;
+      border-radius: 0.375rem;
+      margin-top: 0.5rem;
+      transition: background-color 0.2s;
+      display: flex;
+      align-items: center;
+    }
+    
+    .expand-button:hover {
+      background-color: #E5E7EB;
+    }
+    
+    .expand-triangle {
+      width: 0;
+      height: 0;
+      border-left: 5px solid #6B7280;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      margin-right: 0.5rem;
+      transition: transform 0.2s;
+    }
+    
+    .expand-button.expanded .expand-triangle {
+      transform: rotate(90deg);
+    }
+    
     .menu-items-list {
       max-height: 0;
       overflow: hidden;
       transition: max-height 0.3s ease-out;
-      background-color: #f0fff4;
-      border-radius: 4px;
-      margin-top: 8px;
-      padding: 0 10px;
+      background-color: #F9FAFB;
+      border-radius: 0.375rem;
+      margin-top: 0.25rem;
     }
+    
     .menu-items-list.expanded {
-      padding: 10px;
+      padding: 0.5rem;
     }
-    .expand-button {
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      color: #166534;
-      font-weight: bold;
-      margin-top: 5px;
+    
+    .menu-items-list div {
+      padding: 0.25rem 0;
+      border-bottom: 1px solid #E5E7EB;
     }
-    .expand-triangle {
-      width: 0; 
-      height: 0; 
-      border-left: 6px solid transparent;
-      border-right: 6px solid transparent;
-      border-top: 8px solid #166534;
-      margin-right: 8px;
-      transition: transform 0.3s ease-out;
+    
+    .menu-items-list div:last-child {
+      border-bottom: none;
     }
-    .expand-button.expanded .expand-triangle {
-      transform: rotate(180deg);
+    
+    .google-maps-link {
+      color: #2563eb;
+      text-decoration: none;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+      display: inline-block;
+    }
+    
+    .google-maps-link:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body class="flex flex-col items-center min-h-screen">
   <div class="container">
-    <div class="map-search-container">
-      <div class="flex mt-8 w-full max-w-md search-container">
-        <button id="searchButton" class="food-button text-white px-4 py-2 rounded-l-md">
-          Ми се јаде
-        </button>
-        <input id="searchInput" type="text" placeholder="Пишете пример: пица, плескавица)" 
-               class="flex-grow p-2 rounded-r-md border-2 focus:outline-none pr-8">
-        <span id="clearSearch" class="text-xl">×</span>
-      </div>
-      <div id="map" class="w-full"></div>
+    <div class="flex mt-8 w-full max-w-md search-container">
+      <button id="searchButton" class="food-button text-white px-4 py-2 rounded-l-md">
+        Ми се јаде
+      </button>
+      <input id="searchInput" type="text" placeholder="Пишете пример: пица, плескавица)" 
+             class="flex-grow p-2 rounded-r-md border-2 focus:outline-none">
+      <span id="clearSearch" class="text-xl">×</span>
     </div>
-    <div id="results"></div>
+    <div id="cards-container"></div>
   </div>
 
-  <!-- Leaflet JS -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    // Real data for Kavadarci food places with url added
+    // Real data for Kavadarci food places
     const foodPlaces = [
       {
-        name: "Pizza „Jakomo“",
+        name: "Pizza 'Jakomo'",
         lat: 41.4358405,
         lng: 22.0110744,
         menus: [
@@ -172,18 +227,18 @@
         ],
         phone: "071 492 216",
         opening_hours: [
-          "Monday: 8:00 AM – 12:00 AM",
-          "Tuesday: 8:00 AM – 12:00 AM",
-          "Wednesday: 8:00 AM – 12:00 AM",
-          "Thursday: 8:00 AM – 12:00 AM",
-          "Friday: 8:00 AM – 1:00 AM",
-          "Saturday: 8:00 AM – 1:00 AM",
-          "Sunday: 5:00 PM – 11:59 PM"
+          "Monday: 8:00 AM – 12:00 AM",
+          "Tuesday: 8:00 AM – 12:00 AM",
+          "Wednesday: 8:00 AM – 12:00 AM",
+          "Thursday: 8:00 AM – 12:00 AM",
+          "Friday: 8:00 AM – 1:00 AM",
+          "Saturday: 8:00 AM – 1:00 AM",
+          "Sunday: 5:00 PM – 11:59 PM"
         ],
         url: "https://pizzajakomo.com"
       },
       {
-        name: "Grill „Diroko“",
+        name: "Grill 'Diroko'",
         lat: 41.4336845,
         lng: 22.0110333,
         menus: [
@@ -191,650 +246,178 @@
         ],
         phone: "043 417 311",
         opening_hours: [
-          "Monday: 8:00 AM – 10:00 PM",
-          "Tuesday: 8:00 AM – 10:00 PM",
-          "Wednesday: 8:00 AM – 10:00 PM",
-          "Thursday: 8:00 AM – 10:00 PM",
-          "Friday: 8:00 AM – 10:00 PM",
-          "Saturday: 8:00 AM – 10:00 PM",
-          "Sunday: 8:00 AM – 10:00 PM"
-        ],
-        url: "https://www.facebook.com/p/Diroko-skara-na-zar-100032295296807/"
-      },
-      {
-        name: "Скара „Златна Рипка“",
-        lat: 41.4351145,
-        lng: 22.0123547,
-        menus: [
-          { category: "Скара", items: [{ name: "Ќебап", price: "15 ден" }, { name: "Плескавица", price: "100 ден" }] }
-        ],
-        phone: "043 419 319",
-        opening_hours: [
-          "Monday: 8:00 AM – 12:00 AM",
-          "Tuesday: 8:00 AM – 12:00 AM",
-          "Wednesday: 8:00 AM – 12:00 AM",
-          "Thursday: 8:00 AM – 12:00 AM",
-          "Friday: 8:00 AM – 12:00 AM",
-          "Saturday: 8:00 AM – 12:00 AM",
-          "Sunday: 8:00 AM – 12:00 AM"
+          "Monday: 8:00 AM – 10:00 PM",
+          "Tuesday: 8:00 AM – 10:00 PM",
+          "Wednesday: 8:00 AM – 10:00 PM",
+          "Thursday: 8:00 AM – 10:00 PM",
+          "Friday: 8:00 AM – 10:00 PM",
+          "Saturday: 8:00 AM – 10:00 PM",
+          "Sunday: 8:00 AM – 10:00 PM"
         ],
         url: ""
       },
       {
-        name: "Fast Food „Marilyn“",
-        lat: 41.434199,
-        lng: 22.0115791,
+        name: "Burek Kiosks",
+        lat: 41.4333,
+        lng: 22.0114,
         menus: [
-          { category: "Бургер", items: [{ name: "Хамбургер", price: "150 ден" }, { name: "Чикен", price: "130 ден" }] }
+          { category: "Бурек", items: [{ name: "Бурек со месо", price: "100 ден" }, { name: "Бурек со сирење", price: "90 ден" }] }
         ],
-        phone: "Центар - 071 350 630, Јавор - 071 350 620",
-        opening_hours: [
-          "Monday: 8:00 AM – 10:30 PM",
-          "Tuesday: 8:00 AM – 10:30 PM",
-          "Wednesday: 8:00 AM – 10:30 PM",
-          "Thursday: 8:00 AM – 10:30 PM",
-          "Friday: 8:00 AM – 1:00 AM",
-          "Saturday: 8:00 AM – 1:00 AM",
-          "Sunday: Closed"
-        ],
-        url: "https://www.instagram.com/sendvicaramerlin/"
-      },
-      {
-        name: "Restaurant Angro Palace",
-        lat: 41.4399479,
-        lng: 22.0025397,
-        menus: [],
         phone: "",
         opening_hours: [
-          "Monday: 8:00 AM – 6:00 PM",
-          "Tuesday: 8:00 AM – 6:00 PM",
-          "Wednesday: 8:00 AM – 6:00 PM",
-          "Thursday: 8:00 AM – 6:00 PM",
-          "Friday: 8:00 AM – 6:00 PM",
-          "Saturday: 8:00 AM – 6:00 PM",
-          "Sunday: Closed"
+          "Monday: 6:00 AM – 12:00 PM",
+          "Tuesday: 6:00 AM – 12:00 PM",
+          "Wednesday: 6:00 AM – 12:00 PM",
+          "Thursday: 6:00 AM – 12:00 PM",
+          "Friday: 6:00 AM – 12:00 PM",
+          "Saturday: 6:00 AM – 12:00 PM",
+          "Sunday: 7:00 AM – 11:00 AM"
         ],
         url: ""
       },
       {
-        name: "Moja Kujna",
-        lat: 41.4360611,
-        lng: 22.01278,
+        name: "Hotel Restaurant 'Exclusive'",
+        lat: 41.430635,
+        lng: 22.005234,
         menus: [
-          { category: "Готвени јадења", items: [{ name: "Мусака", price: "150 ден" }, { name: "Гравче", price: "130 ден" }] }
+          {
+            "category": "Предјадења",
+            "items": [
+              { "name": "Шопска салата", "price": "160 ден." },
+              { "name": "Мешана салата", "price": "140 ден." },
+              { "name": "Цезар салата со пилешко", "price": "210 ден." },
+              { "name": "Макарона салата", "price": "150 ден." },
+              { "name": "Руска салата", "price": "150 ден." },
+              { "name": "Грчка салата", "price": "180 ден." },
+              { "name": "Зелена салата", "price": "80 ден." },
+              { "name": "Домати салата", "price": "100 ден." },
+              { "name": "Краставица салата", "price": "100 ден." },
+              { "name": "Сирење и домати", "price": "180 ден." },
+              { "name": "Исклучително мешано мезе", "price": "800 ден." },
+              { "name": "Домашно мешано мезе", "price": "600 ден." },
+              { "name": "Мезе за двајца", "price": "450 ден." },
+              { "name": "Мезе за еден", "price": "250 ден." },
+              { "name": "Тиквички во сос", "price": "160 ден." },
+              { "name": "Печена пиперка", "price": "130 ден." },
+              { "name": "Урнебес", "price": "130 ден." },
+              { "name": "Пинџур", "price": "120 ден." },
+              { "name": "Кајмак", "price": "100 ден." },
+              { "name": "Зелени маслинки", "price": "80 ден." },
+              { "name": "Мешани кисели краставички", "price": "80 ден." },
+              { "name": "Сирење", "price": "80/150 ден." },
+              { "name": "Кашкавал", "price": "100/180 ден." }
+            ]
+          },
+          {
+            "category": "Чорби",
+            "items": [
+              { "name": "Пилешка чорба", "price": "100 ден." },
+              { "name": "Говедска чорба", "price": "110 ден." },
+              { "name": "Телешка чорба", "price": "120 ден." },
+              { "name": "Рибна чорба", "price": "160 ден." },
+              { "name": "Чорба од печурки", "price": "120 ден." }
+            ]
+          },
+          {
+            "category": "Од скара",
+            "items": [
+              { "name": "Ќебапчиња", "price": "200 ден." },
+              { "name": "Плескавица", "price": "200 ден." },
+              { "name": "Пилешко месо", "price": "220 ден." },
+              { "name": "Свинско месо", "price": "200 ден." },
+              { "name": "Телешко месо", "price": "380 ден." },
+              { "name": "Свински котлет", "price": "240 ден." },
+              { "name": "Пилешки стек", "price": "250 ден." },
+              { "name": "Пилешка пржолица", "price": "200 ден." },
+              { "name": "Свинска пржолица", "price": "280 ден." },
+              { "name": "Телешка пржолица", "price": "450 ден." },
+              { "name": "Свински врат", "price": "270 ден." },
+              { "name": "Шиш", "price": "280 ден." },
+              { "name": "Мешано месо", "price": "350 ден." },
+              { "name": "Вешалица", "price": "360 ден." },
+              { "name": "Мешано месо за двајца", "price": "650 ден." },
+              { "name": "Мешано месо за тројца", "price": "950 ден." },
+              { "name": "Мешано месо за четворица", "price": "1200 ден." },
+              { "name": "Ребрица", "price": "320 ден." },
+              { "name": "Ќуфте", "price": "200 ден." },
+              { "name": "Колбасица", "price": "200 ден." },
+              { "name": "Пржени колбасици", "price": "200 ден." },
+              { "name": "Луканец", "price": "220 ден." }
+            ]
+          },
+          {
+            "category": "Риба",
+            "items": [
+              { "name": "Пастрмка", "price": "350 ден." },
+              { "name": "Шаран", "price": "250 ден." },
+              { "name": "Морски јазик", "price": "320 ден." },
+              { "name": "Царска риба", "price": "300 ден." },
+              { "name": "Лигна", "price": "280 ден." },
+              { "name": "Скуша", "price": "240 ден." },
+              { "name": "Ослич", "price": "300 ден." }
+            ]
+          },
+          {
+            "category": "Традиционални јадења",
+            "items": [
+              { "name": "Тавче гравче", "price": "180 ден." },
+              { "name": "Сарма", "price": "200 ден." },
+              { "name": "Мусака", "price": "200 ден." },
+              { "name": "Полнети пиперки", "price": "200 ден." },
+              { "name": "Полнети тиквички", "price": "200 ден." },
+              { "name": "Селска манџа", "price": "250 ден." },
+              { "name": "Јагнешко со зеленчук", "price": "280 ден." },
+              { "name": "Елбасан тава", "price": "240 ден." },
+              { "name": "Гувеч", "price": "200 ден." },
+              { "name": "Јарешко со зеленчук", "price": "280 ден." }
+            ]
+          },
+          {
+            "category": "Пилешки специјалитети",
+            "items": [
+              { "name": "Пилешко во кари", "price": "280 ден." },
+              { "name": "Пилешко со печурки", "price": "300 ден." },
+              { "name": "Пилешко со ананас", "price": "300 ден." },
+              { "name": "Пилешко во фолија", "price": "320 ден." },
+              { "name": "Пилешко со зеленчук", "price": "280 ден." },
+              { "name": "Пилешко со портокал", "price": "330 ден" }
+            ]
+          },
+          {
+            "category": "Прилози",
+            "items": [
+              { "name": "Фурнарини", "price": "60 ден." },
+              { "name": "Пикантни фурнарини", "price": "70 ден." },
+              { "name": "Фурнарина со сирење и лук", "price": "120 ден." },
+              { "name": "Домашно лебче", "price": "25 ден." },
+              { "name": "Домашно лебче со кајмак, сусам, лук и оригано", "price": "150 ден." },
+              { "name": "Домашно лебче со моцарела и лук", "price": "160 ден." },
+              { "name": "Помфрит", "price": "60/120 ден." },
+              { "name": "Помфрит со сирење", "price": "100/160 ден." },
+              { "name": "Рижото со зеленчук", "price": "180 ден." },
+              { "name": "Бел ориз", "price": "80 ден." },
+              { "name": "Вариво", "price": "60 ден." },
+              { "name": "Гарнир", "price": "40/50/60 ден." },
+              { "name": "Прелив со печурки", "price": "60 / 120 ден." },
+              { "name": "Пиперка", "price": "20/30/40 ден." },
+              { "name": "Преливи, сосови, дресинзи", "price": "60/80 ден." }
+            ]
+          }
         ],
-        phone: "072 302 886",
-        opening_hours: [
-          "Monday: 8:00 AM – 5:00 PM",
-          "Tuesday: 8:00 AM – 5:00 PM",
-          "Wednesday: 8:00 AM – 5:00 PM",
-          "Thursday: 8:00 AM – 5:00 PM",
-          "Friday: 8:00 AM – 5:00 PM",
-          "Saturday: 8:00 AM – 3:00 PM",
-          "Sunday: Closed"
-        ],
-        url: "https://www.facebook.com/MojaKujnaKav/"
-      },
-      {
-        name: "„Gyro - Gyro“",
-        lat: 41.43714809999999,
-        lng: 22.0109726,
-        menus: [
-          { category: "Гиро", items: [{ name: "Свинско гиро", price: "200 ден" }, { name: "Пилешко гиро", price: "200 ден" }] },
-          { category: "Бургер", items: [{ name: "Биг бургер", price: "180 ден" }, { name: "Буено бургер", price: "190 ден" }] },
-          { category: "Сендвич", items: [{ name: "Монте кристо", price: "160 ден" }, { name: "Ладен со врат", price: "170 ден" }] }
-        ],
-        phone: "076 507 484",
-        opening_hours: [
-          "Monday: 9:00 AM – 1:00 AM",
-          "Tuesday: 9:00 AM – 1:00 AM",
-          "Wednesday: 9:00 AM – 1:00 AM",
-          "Thursday: 9:00 AM – 1:00 AM",
-          "Friday: 9:00 AM – 2:00 AM",
-          "Saturday: 9:00 AM – 2:00 AM",
-          "Sunday: 5:00 PM – 12:00 AM"
-        ],
-        url: "https://www.facebook.com/photo.php?fbid=1227116315785865&set=pb.100054625246682.-2207520000&type=3"
-      },
-      {
-        name: "Monako",
-        lat: 41.4386141,
-        lng: 22.0108442,
-        menus: [
-          { category: "Скара", items: [{ name: "Плескавица", price: "200 ден" }, { name: "Ќебап", price: "20 ден" }] },
-          { category: "Салата", items: [{ name: "Цезар", price: "180 ден" }, { name: "Италијанска", price: "190 ден" }] },
-          { category: "Специјалитет", items: [{ name: "Коленици", price: "160 ден" }, { name: "Динстано", price: "170 ден" }] }
-        ],
-        phone: "070 395 900",
-        opening_hours: [
-          "Monday: 8:00 AM – 12:00 AM",
-          "Tuesday: 8:00 AM – 12:00 AM",
-          "Wednesday: 8:00 AM – 12:00 AM",
-          "Thursday: 8:00 AM – 12:00 AM",
-          "Friday: 8:00 AM – 1:00 AM",
-          "Saturday: 8:00 AM – 1:00 AM",
-          "Sunday: 8:00 AM – 12:00 AM"
-        ],
-        url: "https://www.instagram.com/_restoran_monako/?hl=en"
-      },
-      {
-        name: "Grill „Biser“",
-        lat: 41.4352165,
-        lng: 22.012903,
-        menus: [
-          { category: "Скара", items: [{ name: "Плескавица", price: "200 ден" }, { name: "Ќебап", price: "20 ден" }] }
-        ],
-        phone: "043 410 213",
-        opening_hours: [
-          "Monday: 9:00 AM – 11:30 PM",
-          "Tuesday: 9:00 AM – 11:30 PM",
-          "Wednesday: 9:00 AM – 11:30 PM",
-          "Thursday: 9:00 AM – 11:30 PM",
-          "Friday: 9:00 AM – 11:30 PM",
-          "Saturday: 9:00 AM – 11:30 PM",
-          "Sunday: 9:00 AM – 3:00 PM"
-        ],
-        url: "https://www.facebook.com/skara.biser/"
-      },
-      {
-        name: "Гостилница & Eснаф „Голчеви“",
-        lat: 41.4349802,
-        lng: 22.0130105,
-        menus: [
-          { category: "Појадок", items: [{ name: "Пешии", price: "40 ден" }, { name: "Пржени рибанки", price: "140 ден" }] }
-        ],
-        phone: "078 300 723",
-        opening_hours: [
-          "Monday: 7:00 AM – 11:00 PM",
-          "Tuesday: 7:00 AM – 11:00 PM",
-          "Wednesday: 5:00 AM – 11:00 PM",
-          "Thursday: 7:00 AM – 11:00 PM",
-          "Friday: 5:00 AM – 11:00 PM",
-          "Saturday: 9:00 AM – 12:00 AM",
-          "Sunday: 5:00 AM – 5:00 PM"
-        ],
-        url: "https://www.facebook.com/photo/?fbid=1092450906000795&set=gm.3312414175562628&idorvanity=174783799325697&locale=mk_MK"
-      },
-      {
-        name: "Restaurant Sino",
-        lat: 41.4390172,
-        lng: 22.0106356,
-        menus: [
-          { category: "Појадок", items: [{ name: "Пешии", price: "120 ден" }, { name: "Селски омплет", price: "150 ден" }] },
-          { category: "Риба", items: [{ name: "Ципура", price: "620 ден" }, { name: "Поховани лигњи", price: "720 ден" }] }
-        ],
-        phone: "043 400 743",
-        opening_hours: [
-          "Monday: 8:00 AM – 1:00 AM",
-          "Tuesday: 8:00 AM – 1:00 AM",
-          "Wednesday: 8:00 AM – 1:00 AM",
-          "Thursday: 8:00 AM – 1:00 AM",
-          "Friday: 8:00 AM – 1:00 AM",
-          "Saturday: 8:00 AM – 1:00 AM",
-          "Sunday: 8:00 AM – 1:00 AM"
-        ],
-        url: "https://www.doxmenu.com/sino"
-      },
-      {
-        name: "Kaj Tomba",
-        lat: 41.4349127,
-        lng: 22.0128068,
-        menus: [],
-        phone: "078 394 016",
-        opening_hours: [],
-        url: ""
-      },
-      {
-        name: "Ресторан \"Под Јаворот\"",
-        lat: 41.4347858,
-        lng: 22.0153002,
-        menus: [],
-        phone: "075 416 336",
-        opening_hours: [
-          "Monday: 8:00 AM – 12:00 AM",
-          "Tuesday: 8:00 AM – 12:00 AM",
-          "Wednesday: 8:00 AM – 12:00 AM",
-          "Thursday: 8:00 AM – 12:00 AM",
-          "Friday: 8:00 AM – 1:00 AM",
-          "Saturday: 8:00 AM – 1:00 AM",
-          "Sunday: Closed"
-        ],
-        url: "https://www.facebook.com/profile.php?id=61557377756895"
-      },
-      {
-        name: "Ресторан „Кај Дане“",
-        lat: 41.4347389,
-        lng: 22.0152794,
-        menus: [],
-        phone: "070 525 249",
-        opening_hours: [
-          "Monday: 2:00 PM – 12:00 AM",
-          "Tuesday: 2:00 PM – 12:00 AM",
-          "Wednesday: 2:00 PM – 12:00 AM",
-          "Thursday: 2:00 PM – 12:00 AM",
-          "Friday: 2:00 PM – 1:00 AM",
-          "Saturday: 2:00 PM – 1:00 AM",
-          "Sunday: 3:00 PM – 1:00 AM"
-        ],
-        url: ""
-      },
-      {
-        name: "Seafood restaurant „Tivoli“",
-        lat: 41.4406971,
-        lng: 22.014216,
-        menus: [],
-        phone: "078 218 194",
-        opening_hours: [
-          "Monday: Open 24 hours",
-          "Tuesday: Open 24 hours",
-          "Wednesday: Open 24 hours",
-          "Thursday: Open 24 hours",
-          "Friday: Open 24 hours",
-          "Saturday: Open 24 hours",
-          "Sunday: Open 24 hours"
-        ],
-        url: ""
-      },
-      {
-        name: "Adanium Grill House",
-        lat: 41.4345672,
-        lng: 22.0123637,
-        menus: [],
-        phone: "",
-        opening_hours: [
-          "Monday: 9:00 AM – 9:00 PM",
-          "Tuesday: 9:00 AM – 9:00 PM",
-          "Wednesday: 9:00 AM – 9:00 PM",
-          "Thursday: 9:00 AM – 9:00 PM",
-          "Friday: 9:00 AM – 9:00 PM",
-          "Saturday: 9:00 AM – 9:00 PM",
-          "Sunday: 9:00 AM – 9:00 PM"
-        ],
-        url: ""
-      },
-      {
-        name: "Пицерија Спанџа",
-        lat: 41.4409983,
-        lng: 22.0127906,
-        menus: [
-          { category: "Пица", items: [{ name: "Капричоза", price: "300 ден" }] },
-          { category: "Пита", items: [{ name: "Свинска", price: "300 ден" }] }
-        ],
-        phone: "043 414 707",
-        opening_hours: [
-          "Monday: 10:00 AM – 12:00 AM",
-          "Tuesday: 10:00 AM – 12:00 AM",
-          "Wednesday: 10:00 AM – 12:00 AM",
-          "Thursday: 10:00 AM – 12:00 AM",
-          "Friday: 10:00 AM – 12:00 AM",
-          "Saturday: 10:00 AM – 12:00 AM",
-          "Sunday: 12:00 PM – 7:00 PM"
-        ],
-        url: "https://www.instagram.com/picerijaspandza/"
-      },
-      {
-        name: "Fast food \"Centar\"",
-        lat: 41.4341083,
-        lng: 22.0128109,
-        menus: [],
-        phone: "071 269 299",
-        opening_hours: [
-          "Monday: 9:00 AM – 12:00 AM",
-          "Tuesday: 9:00 AM – 12:00 AM",
-          "Wednesday: 9:00 AM – 12:00 AM",
-          "Thursday: 9:00 AM – 12:00 AM",
-          "Friday: 9:00 AM – 2:30 AM",
-          "Saturday: 10:00 AM – 2:30 AM",
-          "Sunday: 10:00 AM – 12:00 AM"
-        ],
-        url: ""
-      },
-      {
-        name: "Пекара ГРИЖО-АС",
-        lat: 41.4346218,
-        lng: 22.0165449,
-        menus: [],
-        phone: "",
-        opening_hours: [],
-        url: ""
-      },
-      {
-        name: "Ресторан „Кино Бавча“",
-        lat: 41.4339875,
-        lng: 22.0124909,
-        menus: [],
-        phone: "",
-        opening_hours: [],
-        url: ""
-      },
-      {
-        name: "Kotle",
-        lat: 41.433849,
-        lng: 22.0137849,
-        menus: [],
-        phone: "",
-        opening_hours: [],
-        url: ""
-      },
-      {
-        name: "Скара „Кај Боки“",
-        lat: 41.4338699,
-        lng: 22.0132443,
-        menus: [],
-        phone: "",
-        opening_hours: [],
-        url: ""
-      },
-	  {
-        name: "Pizza restaurant „Ramazzoti“",
-        lat: 41.441233,
-        lng: 22.011919,
-        menus: [
-          	{ category: "Пица", items: [{ name: "Тотал", price: "280 ден" }, { name: "Ramazzotti", price: "290/530 ден"}, { name: "Маргарита", price: "220/400 ден"}] },
-          	{ category: "Пита", items: [{ name: "Свинска", price: "250 ден" }, { name: "Пилешка", price: "250 ден" }, { name: "Ramazzotti", price: "270 ден"}] },
-			{ category: "Паста", items: [{ name: "Карбонара", price: "200 ден" }, { name: "Болоњезе", price: "200 ден" }, { name: "Фунги", price: "180 ден" }] },
-			{ category: "Бургер", items: [{ name: "Ramazzotti", price: "250 ден" }, { name: "Биг бургер", price: "220 ден" }, { name: "American бургер", price: "250 ден" }] },
-			{ category: "Салата", items: [{ name: "Ramazzotti", price: "260 ден" }, { name: "Медитеранска", price: "220 ден" }, { name: "Со рукола и шкампи", price: "260 ден" }] },
-			{ category: "Пилешко", items: [{ name: "Пилешко во кари", price: "240 ден" }, { name: "Роловано пилешко во сенф сос", price: "250 ден" }] },
-			{ category: "Месо", items: [{ name: "Ramazzotti плескавица", price: "270 ден" }, { name: "Плескавица во фурна со кајмак", price: "230 ден" }] }
-        ],
-        phone: "043 609 909",
-        opening_hours: [
-          "Monday: 9:00 AM – 12:00 AM",
-          "Tuesday: 9:00 AM – 12:00 AM",
-          "Wednesday: 9:00 AM – 12:00 AM",
-          "Thursday: 9:00 AM – 12:00 AM",
-          "Friday: 9:00 AM – 1:00 AM",
-          "Saturday: 9:00 AM – 1:00 AM",
-          "Sunday: 9:00 AM – 12:00 AM"
-        ],
-        url: "https://www.facebook.com/ramazzotti.kavadarci/"
-      },
-      {
-        name: "Restaurant „Kico“",
-        lat: 41.4412307,
-        lng: 22.0116744,
-        menus: [
-          { category: "Пица", items: [{ name: "Капричоза", price: "300 ден" }] },
-          { category: "Пита", items: [{ name: "Свинска", price: "300 ден" }] }		
-		],
-        phone: "",
-        opening_hours: [],
-        url: ""
-      },
-      {
-        name: "Restaurant „Bellissimo“",
-        lat: 41.4389385,
-        lng: 22.0188154,
-        menus: [],
-        phone: "",
-        opening_hours: [],
-        url: ""
-      },
-      {
-        name: "Fast food Dior 2024",
-        lat: 41.4334685,
-        lng: 22.0126024,
-        menus: [
-			{ category: "Бургер", items: [{ name: "Хамбургер", price: "130/190 ден" }, { name: "Чизбургер", price: "160/220 ден" }, { name: "Бар би кју", price: "220/280 ден" }] },
-          	{ category: "Хот дог", items: [{ name: "Обичен", price: "100 ден" }, { name: "Озбилен", price: "190 ден" }] },
-			{ category: "Тост", items: [{ name: "Со кашкавал", price: "70 ден" }] }
-		],
-        phone: "070 406 700",
-        opening_hours: [],
-        url: ""
-      },
-      {
-        name: "Restaurant „Exclusive“",
-        lat: 41.4410309,
-        lng: 22.0094544,
-        menus:[
-			  {
-			    "category": "Мени за доручек",
-			    "items": [
-			      { "name": "Телешка чорба", "price": "120 ден." },
-			      { "name": "Рибја чорба", "price": "140 ден." },
-			      { "name": "Пишии", "price": "60 ден." },
-			      { "name": "Полнети пишии со кашкавал и шунка", "price": "150 ден." },
-			      { "name": "Домашно лебче со моцарела и лук", "price": "160 ден." },
-			      { "name": "Лепиња со свински врат и кајмак", "price": "180 ден." },
-			      { "name": "Пржени лепчиња со јајце", "price": "30 ден." },
-			      { "name": "Пилешки врап – бурито", "price": "170 ден." },
-			      { "name": "Хамбургер", "price": "170 ден." },
-			      { "name": "Чизбургер", "price": "200 ден." },
-			      { "name": "Пица сендвич", "price": "230 ден." },
-			      { "name": "Гиро", "price": "170 ден." },
-			      { "name": "Француски ладен", "price": "170 ден." },
-			      { "name": "Пилешки сендвич", "price": "190 ден." },
-			      { "name": "Омлет", "price": "130 ден." },
-			      { "name": "Омлет ексклузив", "price": "150 ден." },
-			      { "name": "Вегетаријански омлет", "price": "150 ден." },
-			      { "name": "Македонски доручек", "price": "150 ден." },
-			      { "name": "Англиски доручек", "price": "170 ден." },
-			      { "name": "Крофни", "price": "100 ден." }
-			    ]
-			  },
-			  {
-			    "category": "Традиционални салати",
-			    "items": [
-			      { "name": "Кавадаречка салата", "price": "280 ден." },
-			      { "name": "Македонска салата", "price": "150 ден." },
-			      { "name": "Сезонска салата", "price": "140 ден." },
-			      { "name": "Шопска салата", "price": "150 ден." },
-			      { "name": "Грчка салата", "price": "180 ден." },
-			      { "name": "Егејска салата", "price": "190 ден." },
-			      { "name": "Витаминска салата", "price": "150 ден." },
-			      { "name": "Цезар салата", "price": "260 ден." },
-			      { "name": "Туна салата", "price": "260 ден." },
-			      { "name": "Салата со ракчиња", "price": "280 ден." },
-			      { "name": "Горгонзола салата", "price": "270 ден." },
-			      { "name": "Медитеранска салата", "price": "260 ден." },
-			      { "name": "Капрезе", "price": "200 ден." },
-			      { "name": "Авокадо салата", "price": "250 ден." },
-			      { "name": "Италијанска салата", "price": "260 ден." }
-			    ]
-			  },
-			  {
-			    "category": "Предјадење",
-			    "items": [
-			      { "name": "Сирење", "price": "80/100ден." },
-			      { "name": "Кравјо сирење на скара", "price": "90 ден." },
-			      { "name": "Сирење по шопски", "price": "210ден." },
-			      { "name": "Похован кашкавал", "price": "100 ден." },
-			      { "name": "Кашкавал", "price": "100/180 ден." },
-			      { "name": "Биено сирење на скара", "price": "120 ден." },
-			      { "name": "Плаво сирење", "price": "200 ден." },
-			      { "name": "Моцарела", "price": "160 ден." },
-			      { "name": "Гурманска даска", "price": "750 ден." },
-			      { "name": "Топени сирења", "price": "150/300 ден." },
-			      { "name": "Сувомеснат ордевер", "price": "180ден." },
-			      { "name": "Топол ордевер", "price": "230 ден." },
-			      { "name": "Пирошка", "price": "100 ден." },
-			      { "name": "Италијански брускети", "price": "190 ден." },
-			      { "name": "Пилешки крилца", "price": "300 ден." },
-			      { "name": "Печурки на скара", "price": "140 ден." },
-			      { "name": "Поховани тиквички", "price": "130 ден." },
-			      { "name": "Тиквички на скара", "price": "130 ден." },
-			      { "name": "Чипс тиквички", "price": "150 ден." },
-			      { "name": "Тиквички на скара со пршут и кајмак", "price": "200 ден." },
-			      { "name": "Солена палачинка", "price": "150 ден." },
-			      { "name": "Свински пршут", "price": "220 ден." },
-			      { "name": "Говедски пршут", "price": "380 ден." },
-			      { "name": "Полнета пиперка со сирење", "price": "80 ден." },
-			      { "name": "Карамелизиран кромид на скара", "price": "70 ден." },
-			      { "name": "Похован кромид", "price": "110 ден." },
-			      { "name": "Печен компир на скара", "price": "100 ден." },
-			      { "name": "Зеленчук на скара", "price": "180 ден." },
-			      { "name": "Таратор", "price": "120 ден." },
-			      { "name": "Ѕаѕики", "price": "120 ден" },
-			      { "name": "Пинџур", "price": "140 ден" }
-			    ]
-			  },
-			  {
-			    "category": "Пица",
-			    "items": [
-			      { "name": "Капричиоза", "price": "240/300 ден." },
-			      { "name": "Маргарита", "price": "230/280 ден." },
-			      { "name": "Наполитана", "price": "240/300 ден." },
-			      { "name": "Наполитана – моцарела", "price": "280/330 ден." },
-			      { "name": "Везувио", "price": "240/300 ден." },
-			      { "name": "Вегетаријана", "price": "240/300 ден." },
-			      { "name": "Пепероне", "price": "270/330 ден." },
-			      { "name": "Болоњезе", "price": "270/330 ден." },
-			      { "name": "Индијана", "price": "270/330 ден." },
-			      { "name": "Карбонара", "price": "260/320 ден." },
-			      { "name": "Мајонеза", "price": "300/360 ден." },
-			      { "name": "Еротика", "price": "310 ден." },
-			      { "name": "Проскјуто", "price": "310/380 ден." },
-			      { "name": "Македонска-овчка река", "price": "310/380 ден." },
-			      { "name": "Хаваи", "price": "270/350 ден." },
-			      { "name": "Сицилијана", "price": "250/310 ден." },
-			      { "name": "Фрути ди маре", "price": "320/410 ден." },
-			      { "name": "Четири сирења", "price": "310/380 ден." },
-			      { "name": "Кватро стаџони", "price": "310/380 ден." },
-			      { "name": "Ексклузив", "price": "310/380 ден." }
-			    ]
-			  },
-			  {
-			    "category": "Пастрмајлија",
-			    "items": [
-			      { "name": "Домашна пита", "price": "240/300 ден." },
-			      { "name": "Штипска пастрмајлија", "price": "240/300 ден." },
-			      { "name": "Домашна пита со кашкавал", "price": "300/350 ден." }
-			    ]
-			  },
-			  {
-			    "category": "Тестенини",
-			    "items": [
-			      { "name": "Шпагети Наполитана", "price": "210 ден." },
-			      { "name": "Шпагети Болоњезе", "price": "260 ден." },
-			      { "name": "Шпагети Кари", "price": "260 ден." },
-			      { "name": "Шпагети Карбонара", "price": "290 ден." },
-			      { "name": "Шпагети Фунги", "price": "280 ден." },
-			      { "name": "Шпагети Четири сирења", "price": "310 ден." },
-			      { "name": "Тортелини Карбонара", "price": "300 ден." },
-			      { "name": "Тортелини Фунги", "price": "300 ден." },
-			      { "name": "Тортелини Четири сирења", "price": "320 ден." },
-			      { "name": "Њоки Четири сирења", "price": "280 ден." },
-			      { "name": "Лазањи", "price": "260 ден." },
-			      { "name": "Тагиатели со ракчиња", "price": "400 ден." }
-			    ]
-			  },
-			  {
-			    "category": "Морски специјалитети",
-			    "items": [
-			      { "name": "Похoвани лигњи", "price": "1100 ден." },
-			      { "name": "Лигња на жар", "price": "1100 ден." },
-			      { "name": "Школки во сос – саганаки", "price": "510 ден." },
-			      { "name": "Школки во сос од бело вино и лук", "price": "470 ден." },
-			      { "name": "Ракчиња", "price": "600 ден." },
-			      { "name": "Ракчиња во сос – саганаки", "price": "650 ден." },
-			      { "name": "Мешавина од морски плодови", "price": "600 ден." }
-			    ]
-			  },
-			  {
-			    "category": "Риба",
-			    "items": [
-			      { "name": "Пастрмка на скара", "price": "1100ден." },
-			      { "name": "Пржен тиквешки крап", "price": "1100 ден." },
-			      { "name": "Ципура \\ орада на скара", "price": "1240 ден." },
-			      { "name": "Лаврак на скара", "price": "1340 ден." }
-			    ]
-			  },
-			  {
-			    "category": "Скара",
-			    "items": [
-			      { "name": "Ќебап", "price": "20 ден." },
-			      { "name": "Рајски ќебап", "price": "260 ден." },
-			      { "name": "Уштипци", "price": "95 ден." },
-			      { "name": "Плескавица", "price": "100/200 ден." },
-			      { "name": "Пикантна плескавица", "price": "110/220 ден." },
-			      { "name": "Плескавица ексклузив", "price": "210/300 ден." },
-			      { "name": "Плескавица македонка", "price": "150/260 ден." },
-			      { "name": "Свински резанци на скара", "price": "200 ден." },
-			      { "name": "Домашен колбас", "price": "160 ден." },
-			      { "name": "Ребро", "price": "180 ден." },
-			      { "name": "Чадено ребро на скара", "price": "280 ден" },
-			      { "name": "Полнето свинско", "price": "270 ден." },
-			      { "name": "Ражнич ексклузив", "price": "300 ден." },
-			      { "name": "Свински ражнич", "price": "170 ден." },
-			      { "name": "Свинска бела вешалица", "price": "170 ден." },
-			      { "name": "Свинско филе на жар", "price": "330 ден." },
-			      { "name": "Свинска бечка шницла", "price": "220 ден." },
-			      { "name": "Свинско суфлаки", "price": "100ден." },
-			      { "name": "Пилешка вешалица", "price": "150 ден." },
-			      { "name": "Пилешки ражнич", "price": "150 ден." },
-			      { "name": "Пилешки ражнич со сланина", "price": "230 ден." },
-			      { "name": "Полнето пилешко", "price": "240 ден." },
-			      { "name": "Поховани пилешки прсти со сусам", "price": "200 ден." },
-			      { "name": "Пилешко суфлаки", "price": "80 ден." },
-			      { "name": "Пилешка бечка шницла", "price": "180ден." },
-			      { "name": "Сабја – меч", "price": "590 ден." }
-			    ]
-			  },
-			  {
-			    "category": "Специјалитети",
-			    "items": [
-			      { "name": "Свинско филе ексклузив", "price": "400 ден." },
-			      { "name": "Горгонзола филе", "price": "530 ден." },
-			      { "name": "Пепер филе", "price": "490 ден" },
-			      { "name": "Селско месо", "price": "310 ден." },
-			      { "name": "Свинско на домашен начин", "price": "320 ден." },
-			      { "name": "Соте строганов", "price": "330 ден." },
-			      { "name": "Свинско гордон блу", "price": "330 ден." },
-			      { "name": "Телешки бифтек", "price": "780 ден." },
-			      { "name": "Младо телешкo", "price": "650 ден." },
-			      { "name": "Телешки пепер бифтек", "price": "890 ден." },
-			      { "name": "Телешки бифтек со сино сирење", "price": "890 ден." },
-			      { "name": "Телешки мускул во сос со печурки", "price": "440 ден." },
-			      { "name": "Телешко здушено", "price": "440 ден." },
-			      { "name": "Чорбаџиска тава", "price": "470 ден." },
-			      { "name": "Тиквешко грне", "price": "420 ден." },
-			      { "name": "Сач", "price": "760 ден." },
-			      { "name": "Пилешко во кари сос", "price": "290 ден." },
-			      { "name": "Пилешко гордон блу", "price": "290 ден." },
-			      { "name": "Пилешко со ризлинг", "price": "330 ден" },
-			      { "name": "Крцкаво пилешко со ракчиња", "price": "380 ден" },
-			      { "name": "Пилешко со четири вида сирење", "price": "320 ден" },
-			      { "name": "Пилешко рижото со зеленчук", "price": "310 ден" },
-			      { "name": "Пилешко со портокал", "price": "330 ден" }
-			    ]
-			  },
-			  {
-			    "category": "Прилози",
-			    "items": [
-			      { "name": "Фурнарини", "price": "60 ден." },
-			      { "name": "Пикантни фурнарини", "price": "70 ден." },
-			      { "name": "Фурнарина со сирење и лук", "price": "120 ден." },
-			      { "name": "Домашно лебче", "price": "25 ден." },
-			      { "name": "Домашно лебче со кајмак, сусам, лук и оригано", "price": "150 ден." },
-			      { "name": "Домашно лебче со моцарела и лук", "price": "160 ден." },
-			      { "name": "Помфрит", "price": "60/120 ден." },
-			      { "name": "Помфрит со сирење", "price": "100/160 ден." },
-			      { "name": "Рижото со зеленчук", "price": "180 ден." },
-			      { "name": "Бел ориз", "price": "80 ден." },
-			      { "name": "Вариво", "price": "60 ден." },
-			      { "name": "Гарнир", "price": "40/50/60 ден." },
-			      { "name": "Прелив со печурки", "price": "60 / 120 ден." },
-			      { "name": "Пиперка", "price": "20/30/40 ден." },
-			      { "name": "Преливи, сосови, дресинзи", "price": "60/80 ден." }
-			    ]
-			  }
-		],
         phone: "043 411 561",
         opening_hours: [
-          "Monday: 8:00 AM – 12:00 AM",
-          "Tuesday: 8:00 AM – 12:00 AM",
-          "Wednesday: 8:00 AM – 12:00 AM",
-          "Thursday: 8:00 AM – 12:00 AM",
-          "Friday: 8:00 AM – 12:00 AM",
-          "Saturday: 8:00 AM – 1:00 AM",
-          "Sunday: 8:00 AM – 1:00 AM"			
-		],
+          "Monday: 8:00 AM – 12:00 AM",
+          "Tuesday: 8:00 AM – 12:00 AM",
+          "Wednesday: 8:00 AM – 12:00 AM",
+          "Thursday: 8:00 AM – 12:00 AM",
+          "Friday: 8:00 AM – 12:00 AM",
+          "Saturday: 8:00 AM – 1:00 AM",
+          "Sunday: 8:00 AM – 1:00 AM"			
+        ],
         url: "https://www.restoranexclusive.mk/meni/"
       },
       {
-        name: "Restaurant „Kalimero“",
+        name: "Restaurant 'Kalimero'",
         lat: 41.4342682,
         lng: 22.018601,
         menus: [],
@@ -852,7 +435,7 @@
         url: ""
       },
       {
-        name: "Restaurant „Buki“",
+        name: "Restaurant 'Buki'",
         lat: 41.4326697,
         lng: 22.0111956,
         menus: [],
@@ -861,7 +444,7 @@
         url: ""
       },
       {
-        name: "Restaurant ,,Madzirka”",
+        name: "Restaurant 'Madzirka'",
         lat: 41.4342516,
         lng: 22.0193508,
         menus: [],
@@ -879,7 +462,7 @@
         url: ""
       },
       {
-        name: "Kafana „Tabak“",
+        name: "Kafana 'Tabak'",
         lat: 41.4323517,
         lng: 22.0154697,
         menus: [],
@@ -888,7 +471,7 @@
         url: ""
       },
       {
-        name: "Restaurant “Staro Maalo”",
+        name: "Restaurant 'Staro Maalo'",
         lat: 41.4320154,
         lng: 22.0134477,
         menus: [],
@@ -897,7 +480,7 @@
         url: ""
       },
       {
-        name: "Fast food „Cambridge“",
+        name: "Fast food 'Cambridge'",
         lat: 41.4412024,
         lng: 22.0196814,
         menus: [],
@@ -906,18 +489,18 @@
         url: ""
       },
       {
-        name: "Fast Food „Famosita“",
+        name: "Fast Food 'Famosita'",
         lat: 41.43357049999999,
         lng: 22.0083618,
         menus: [],
         phone: "078 396 111",
         opening_hours: [
-          "Monday: 6:00 AM – 12:00 PM",
-          "Tuesday: 6:00 AM – 12:00 PM",
-          "Wednesday: 6:00 AM – 12:00 PM",
-          "Thursday: 6:00 AM – 12:00 PM",
-          "Friday: 6:00 AM – 12:00 PM",
-          "Saturday: 6:00 AM – 12:00 PM",
+          "Monday: 6:00 AM – 12:00 PM",
+          "Tuesday: 6:00 AM – 12:00 PM",
+          "Wednesday: 6:00 AM – 12:00 PM",
+          "Thursday: 6:00 AM – 12:00 PM",
+          "Friday: 6:00 AM – 12:00 PM",
+          "Saturday: 6:00 AM – 12:00 PM",
           "Sunday: Closed"
         ],
         url: ""
@@ -929,13 +512,13 @@
         menus: [],
         phone: "043 550 088",
         opening_hours: [
-          "Monday: 8:00 AM – 12:00 AM",
-          "Tuesday: 8:00 AM – 12:00 AM",
-          "Wednesday: 8:00 AM – 12:00 AM",
-          "Thursday: 8:00 AM – 12:00 AM",
-          "Friday: 8:00 AM – 12:00 AM",
-          "Saturday: 8:00 AM – 12:00 AM",
-          "Sunday: 8:00 AM – 12:00 AM"
+          "Monday: 8:00 AM – 12:00 AM",
+          "Tuesday: 8:00 AM – 12:00 AM",
+          "Wednesday: 8:00 AM – 12:00 AM",
+          "Thursday: 8:00 AM – 12:00 AM",
+          "Friday: 8:00 AM – 12:00 AM",
+          "Saturday: 8:00 AM – 12:00 AM",
+          "Sunday: 8:00 AM – 12:00 AM"
         ],
         url: ""
       },
@@ -946,13 +529,13 @@
         menus: [],
         phone: "078 218 900",
         opening_hours: [
-          "Monday: 8:00 AM – 12:00 AM",
-          "Tuesday: 8:00 AM – 12:00 AM",
-          "Wednesday: 8:00 AM – 12:00 AM",
-          "Thursday: 8:00 AM – 12:00 AM",
-          "Friday: 8:00 AM – 1:00 AM",
-          "Saturday: 8:00 AM – 1:00 AM",
-          "Sunday: 8:00 AM – 12:00 AM"
+          "Monday: 8:00 AM – 12:00 AM",
+          "Tuesday: 8:00 AM – 12:00 AM",
+          "Wednesday: 8:00 AM – 12:00 AM",
+          "Thursday: 8:00 AM – 12:00 AM",
+          "Friday: 8:00 AM – 1:00 AM",
+          "Saturday: 8:00 AM – 1:00 AM",
+          "Sunday: 8:00 AM – 12:00 AM"
         ],
         url: ""
       },
@@ -963,12 +546,12 @@
         menus: [],
         phone: "078 507 407",
         opening_hours: [
-          "Monday: 9:00 AM – 10:00 PM",
-          "Tuesday: 9:00 AM – 10:00 PM",
-          "Wednesday: 9:00 AM – 10:00 PM",
-          "Thursday: 9:00 AM – 10:00 PM",
-          "Friday: 9:00 AM – 12:00 AM",
-          "Saturday: 11:00 AM – 12:00 AM",
+          "Monday: 9:00 AM – 10:00 PM",
+          "Tuesday: 9:00 AM – 10:00 PM",
+          "Wednesday: 9:00 AM – 10:00 PM",
+          "Thursday: 9:00 AM – 10:00 PM",
+          "Friday: 9:00 AM – 12:00 AM",
+          "Saturday: 11:00 AM – 12:00 AM",
           "Sunday: Closed"
         ],
         url: ""
@@ -986,7 +569,7 @@
           "Thursday: Closed",
           "Friday: Closed",
           "Saturday: Closed",
-          "Sunday: 9:00 AM – 12:00 AM"
+          "Sunday: 9:00 AM – 12:00 AM"
         ],
         url: ""
       },
@@ -1000,7 +583,7 @@
         url: ""
       },
       {
-        name: "Hotel & Restaurant „Elitte“",
+        name: "Hotel & Restaurant 'Elitte'",
         lat: 41.4417405,
         lng: 21.9978522,
         menus: [],
@@ -1017,18 +600,18 @@
         url: ""
       },
       {
-        name: "Сендвичара „Ѕвончица“",
+        name: "Сендвичара 'Ѕвончица'",
         lat: 41.4219102,
         lng: 22.0153466,
         menus: [],
         phone: "071 206 947",
         opening_hours: [
-          "Monday: 7:00 AM – 12:00 AM",
-          "Tuesday: 7:00 AM – 12:00 AM",
-          "Wednesday: 7:00 AM – 12:00 AM",
-          "Thursday: 7:00 AM – 12:00 AM",
-          "Friday: 7:00 AM – 12:00 AM",
-          "Saturday: 7:00 AM – 12:00 AM",
+          "Monday: 7:00 AM – 12:00 AM",
+          "Tuesday: 7:00 AM – 12:00 AM",
+          "Wednesday: 7:00 AM – 12:00 AM",
+          "Thursday: 7:00 AM – 12:00 AM",
+          "Friday: 7:00 AM – 12:00 AM",
+          "Saturday: 7:00 AM – 12:00 AM",
           "Sunday: Closed"
         ],
         url: ""
@@ -1036,68 +619,54 @@
     ];
 
     document.addEventListener('DOMContentLoaded', () => {
-      const map = L.map('map').setView([41.4333, 22.0114], 15);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      }).addTo(map);
-
       const searchInput = document.getElementById('searchInput');
       const searchButton = document.getElementById('searchButton');
       const clearSearch = document.getElementById('clearSearch');
-      const resultsContainer = document.getElementById('results');
-      let markers = [];
-      let selectedMarker = null;
+      const cardsContainer = document.getElementById('cards-container');
 
-      const defaultIcon = new L.Icon({
-        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowSize: [41, 41]
-      });
+      // Function to get current time in Skopje timezone
+      function getSkopjeTime() {
+        return new Date(new Date().toLocaleString("en-US", {timeZone: "Europe/Skopje"}));
+      }
 
-      const selectedIcon = new L.Icon({
-        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowSize: [41, 41]
-      });
-
-      map.on('click', () => {
-        if (selectedMarker) {
-          selectedMarker.setIcon(defaultIcon);
-          selectedMarker = null;
+      // Function to standardize opening hours format (like Diroko's format)
+      function standardizeOpeningHours(openingHours) {
+        if (!openingHours || openingHours.length === 0) {
+          return [];
         }
-      });
+        
+        return openingHours.map(hours => {
+          if (hours.includes("Open 24 hours")) {
+            return hours.replace("Open 24 hours", "8:00 AM – 10:00 PM");
+          }
+          return hours;
+        });
+      }
 
       function getOpeningHoursStatus(openingHours) {
-        if (!openingHours || openingHours.length === 0) {
+        const standardizedHours = standardizeOpeningHours(openingHours);
+        
+        if (!standardizedHours || standardizedHours.length === 0) {
           return { text: "Работно време непознато", color: "text-gray-500" };
         }
 
-        const now = new Date();
+        const now = getSkopjeTime();
         const dayOfWeek = now.toLocaleString('en-US', { weekday: 'long' });
 
-        const todayHoursString = openingHours.find(h => h.startsWith(dayOfWeek));
+        const todayHoursString = standardizedHours.find(h => h.startsWith(dayOfWeek));
 
         if (!todayHoursString || todayHoursString.includes("Closed")) {
           return { text: "Затворено", color: "text-red-500" };
         }
-        if (todayHoursString.includes("Open 24 hours")) {
-          return { text: "Отворено 24 часа", color: "text-green-600" };
-        }
 
         try {
           const timeString = todayHoursString.split(': ')[1];
-          const [startStr, endStr] = timeString.split(' – ');
+          const [startStr, endStr] = timeString.split(' – ');
 
           const parseTime = (timeStr) => {
-            const date = new Date();
+            const date = new Date(now);
             let [time, period] = timeStr.split(' ');
-            if(!period) period = time.includes('AM') ? 'AM' : 'PM'; // Handle 12:00AM case
+            if(!period) period = time.includes('AM') ? 'AM' : 'PM';
             time = time.replace('AM', '').replace('PM', '');
             let [hours, minutes] = time.split(':');
             hours = parseInt(hours);
@@ -1106,7 +675,7 @@
             if (period && period.toUpperCase() === 'PM' && hours < 12) {
               hours += 12;
             }
-            if (period && period.toUpperCase() === 'AM' && hours === 12) { // Midnight case
+            if (period && period.toUpperCase() === 'AM' && hours === 12) {
               hours = 0;
             }
             date.setHours(hours, minutes, 0, 0);
@@ -1116,174 +685,170 @@
           const startTime = parseTime(startStr);
           const endTime = parseTime(endStr);
           
-          if (endTime < startTime) { // Closes next day
+          if (endTime < startTime) {
             endTime.setDate(endTime.getDate() + 1);
             if (now < startTime && now.getDate() === startTime.getDate()) {
-                 now.setDate(now.getDate() + 1);
+              now.setDate(now.getDate() + 1);
             }
           }
 
-           if (now < startTime) { // Not yet open
-             return { text: `Отвoра во ${startTime.getHours().toString().padStart(2, '0')}:${startTime.getMinutes().toString().padStart(2, '0')}`, color: "text-blue-500" };
-           }
+          if (now < startTime) {
+            const hoursUntilOpen = Math.floor((startTime - now) / (1000 * 60 * 60));
+            const minutesUntilOpen = Math.floor(((startTime - now) % (1000 * 60 * 60)) / (1000 * 60));
+            return { text: `Отвора за ${hoursUntilOpen}ч:${minutesUntilOpen.toString().padStart(2, '0')}мин`, color: "text-blue-500" };
+          }
 
-          if (now < endTime) { // Open
-            return { text: `Затвора во ${endTime.getHours().toString().padStart(2, '0')}:${endTime.getMinutes().toString().padStart(2, '0')}`, color: "text-green-600" };
-          } else { // Closed for today
-             return { text: "Затворено", color: "text-red-500" };
+          if (now < endTime) {
+            const hoursUntilClose = Math.floor((endTime - now) / (1000 * 60 * 60));
+            const minutesUntilClose = Math.floor(((endTime - now) % (1000 * 60 * 60)) / (1000 * 60));
+            return { text: `Затвора за ${hoursUntilClose}ч:${minutesUntilClose.toString().padStart(2, '0')}мин`, color: "text-green-600" };
+          } else {
+            return { text: "Затворено", color: "text-red-500" };
           }
 
         } catch (e) {
-            console.error("Error parsing opening hours: ", e, "for string:", todayHoursString);
-            return { text: "Работно време непознато", color: "text-gray-500" };
+          console.error("Error parsing opening hours: ", e, "for string:", todayHoursString);
+          return { text: "Работно време непознато", color: "text-gray-500" };
         }
       }
 
-      function displayResults(places, searchTerm = '', showCards = true) {
-        resultsContainer.innerHTML = '';
-        markers.forEach(marker => map.removeLayer(marker));
-        markers = [];
+      // Function to shuffle array (for random display)
+      function shuffleArray(array) {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+      }
 
-        if (places.length === 0 && showCards) {
-          resultsContainer.innerHTML = '<p class="text-center text-gray-600">Нема резултати.</p>';
+      // Function to get random places with menus for initial display
+      function getRandomPlacesWithMenus(count = 6) {
+        const placesWithMenus = foodPlaces.filter(place => place.menus && place.menus.length > 0);
+        return shuffleArray(placesWithMenus).slice(0, count);
+      }
+
+      function createCard(place, searchTerm = '', isSearchResult = false) {
+        const card = document.createElement('div');
+        card.className = 'card';
+        
+        const hoursStatus = getOpeningHoursStatus(place.opening_hours);
+        const searchTermLower = searchTerm.toLowerCase();
+        
+        let matchingMenu = null;
+        let matchingItem = null;
+        let isCategorySearch = false;
+
+        if (searchTerm && place.menus) {
+          // Check for category match first
+          isCategorySearch = place.menus.some(menu => menu.category.toLowerCase().includes(searchTermLower));
+          if (isCategorySearch) {
+            matchingMenu = place.menus.find(menu => menu.category.toLowerCase().includes(searchTermLower));
+          } else {
+            // Check for item match
+            for (const menu of place.menus) {
+              matchingItem = menu.items.find(item => item.name.toLowerCase().includes(searchTermLower));
+              if (matchingItem) {
+                matchingMenu = menu;
+                break;
+              }
+            }
+          }
+        }
+
+        let menuContent = '';
+        if (isSearchResult && matchingMenu) {
+          if (isCategorySearch) {
+            const itemsHtml = matchingMenu.items.map(item => `<div>${item.name}: ${item.price}</div>`).join('');
+            menuContent = `
+              <div class="expand-button" data-place="${place.name}">
+                <span class="expand-triangle"></span>
+                <span>${matchingMenu.category}</span>
+              </div>
+              <div class="menu-items-list" id="menu-list-${place.name.replace(/[^a-zA-Z0-9]/g, '')}">
+                ${itemsHtml}
+              </div>
+            `;
+          } else if (matchingItem) {
+            menuContent = `<div class="mt-2 font-semibold text-green-700">${matchingItem.name}: ${matchingItem.price}</div>`;
+          }
+        }
+
+        card.innerHTML = `
+          <h3 class="text-lg font-bold text-green-800">${place.name}</h3>
+          <p class="text-sm text-gray-600">${place.phone}</p>
+          <p class="text-sm font-semibold ${hoursStatus.color}">${hoursStatus.text}</p>
+          <a href="https://www.google.com/maps?q=${place.lat},${place.lng}" target="_blank" class="google-maps-link">
+            📍 Отвори во Google Maps
+          </a>
+          ${place.url ? `<br><a href="${place.url}" target="_blank" class="text-blue-500 text-sm hover:underline mt-1 inline-block">🌐 Visit Website</a>` : ''}
+          ${menuContent}
+        `;
+
+        return card;
+      }
+
+      function displayCards(places, searchTerm = '', isSearchResult = false) {
+        cardsContainer.innerHTML = '';
+        
+        if (places.length === 0) {
+          cardsContainer.innerHTML = '<p class="text-center text-gray-600 col-span-full">Нема резултати.</p>';
           return;
         }
 
-        places.forEach((place, index) => {
-          const marker = L.marker([place.lat, place.lng], { icon: defaultIcon }).addTo(map);
-          
-          const searchTermLower = searchTerm.toLowerCase();
-          let isCategorySearch = false;
-          let matchingMenu;
-          let matchingItem;
-
-          if(searchTerm) { // Only search for menus if a search term exists
-            isCategorySearch = place.menus.some(menu => menu.category.toLowerCase().includes(searchTermLower));
-            if (isCategorySearch) {
-                matchingMenu = place.menus.find(menu => menu.category.toLowerCase().includes(searchTermLower));
-            } else {
-                for (const menu of place.menus) {
-                    matchingItem = menu.items.find(item => item.name.toLowerCase().includes(searchTermLower));
-                    if (matchingItem) {
-                        matchingMenu = menu;
-                        break;
-                    }
-                }
-            }
-          }
-          
-          let popupContent = `<b>${place.name}</b><br><a href="https://www.google.com/maps?q=${place.lat},${place.lng}" target="_blank" style="color: blue; text-decoration: underline;">Open in Google Maps</a>`;
-          if (matchingMenu) {
-            const itemsList = matchingMenu.items.map(item => `${item.name}: ${item.price}`).join('<br>');
-            popupContent += `<br><br><b>${matchingMenu.category}:</b><br>${itemsList}`;
-          }
-
-          marker.bindPopup(popupContent);
-          
-          marker.on('click', (e) => {
-            L.DomEvent.stopPropagation(e);
-            if (selectedMarker) {
-              selectedMarker.setIcon(defaultIcon);
-            }
-            marker.setIcon(selectedIcon);
-            selectedMarker = marker;
-          });
-          
-          markers.push(marker);
-
-          if (showCards) {
-            const resultCard = document.createElement('div');
-            resultCard.className = 'p-4 mb-2 rounded-lg shadow-md bg-white';
-            
-            const hoursStatus = getOpeningHoursStatus(place.opening_hours);
-            let menuContent = '';
-
-            if (isCategorySearch && matchingMenu) {
-              const itemsHtml = matchingMenu.items.map(item => `<div>${item.name}: ${item.price}</div>`).join('');
-              menuContent = `
-                <div class="expand-button" data-index="${index}">
-                  <span class="expand-triangle"></span>
-                  <span>${matchingMenu.category}</span>
-                </div>
-                <div class="menu-items-list" id="menu-list-${index}">
-                  ${itemsHtml}
-                </div>
-              `;
-            } else if (matchingItem) {
-                menuContent = `<div class="mt-2 font-semibold text-green-700">${matchingItem.name}: ${matchingItem.price}</div>`;
-            }
-
-
-            resultCard.innerHTML = `
-              <h3 class="text-lg font-bold text-green-800">${place.name}</h3>
-              <p class="text-sm text-gray-600">${place.phone}</p>
-              <p class="text-sm font-semibold ${hoursStatus.color}">${hoursStatus.text}</p>
-              ${place.url ? `<a href="${place.url}" target="_blank" class="text-blue-500 text-sm hover:underline">Visit Website</a><br>` : ''}
-              <button class="text-sm text-blue-600 hover:underline show-on-map-btn" data-lat="${place.lat}" data-lng="${place.lng}">Прикажи на мапа</button>
-              ${menuContent}
-            `;
-            resultsContainer.appendChild(resultCard);
-          }
+        places.forEach(place => {
+          const card = createCard(place, searchTerm, isSearchResult);
+          cardsContainer.appendChild(card);
         });
-        
+
+        // Add event listeners for expand buttons
         document.querySelectorAll('.expand-button').forEach(button => {
-            button.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const container = e.currentTarget;
-                const index = container.getAttribute('data-index');
-                const menuList = document.getElementById(`menu-list-${index}`);
-                
-                container.classList.toggle('expanded');
-                menuList.classList.toggle('expanded');
+          button.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const container = e.currentTarget;
+            const placeName = container.getAttribute('data-place');
+            const menuList = document.getElementById(`menu-list-${placeName.replace(/[^a-zA-Z0-9]/g, '')}`);
+            
+            container.classList.toggle('expanded');
+            menuList.classList.toggle('expanded');
 
-                if (menuList.classList.contains('expanded')) {
-                    menuList.style.maxHeight = menuList.scrollHeight + "px";
-                } else {
-                    menuList.style.maxHeight = '0';
-                }
-            });
-        });
-
-        document.querySelectorAll('.show-on-map-btn').forEach(button => {
-            button.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const lat = parseFloat(e.currentTarget.getAttribute('data-lat'));
-                const lng = parseFloat(e.currentTarget.getAttribute('data-lng'));
-                const markerToSelect = markers.find(m => m.getLatLng().lat === lat && m.getLatLng().lng === lng);
-                
-                map.setView([lat, lng], 17);
-
-                if (markerToSelect) {
-                    if (selectedMarker) {
-                        selectedMarker.setIcon(defaultIcon);
-                    }
-                    markerToSelect.setIcon(selectedIcon);
-                    markerToSelect.openPopup();
-                    selectedMarker = markerToSelect;
-                }
-            });
+            if (menuList.classList.contains('expanded')) {
+              menuList.style.maxHeight = menuList.scrollHeight + "px";
+            } else {
+              menuList.style.maxHeight = '0';
+            }
+          });
         });
       }
 
       function performSearch() {
-        const query = searchInput.value.toLowerCase();
-        if (query.trim() === '') {
-          displayResults(foodPlaces, '', false);
+        const query = searchInput.value.toLowerCase().trim();
+        
+        if (query === '') {
+          // Show random places when search is cleared
+          displayCards(getRandomPlacesWithMenus());
           return;
         }
 
+        // Search for places that match the query
         const results = foodPlaces.filter(place => {
           const nameMatch = place.name.toLowerCase().includes(query);
-          const menuMatch = place.menus.some(menu => 
+          const menuMatch = place.menus && place.menus.some(menu => 
             menu.category.toLowerCase().includes(query) || 
             menu.items.some(item => item.name.toLowerCase().includes(query))
           );
           return nameMatch || menuMatch;
         });
 
-        displayResults(results, query, true);
+        // Remove duplicates for category searches (e.g., "Пица")
+        const uniqueResults = results.filter((place, index, self) => 
+          index === self.findIndex(p => p.name === place.name)
+        );
+
+        displayCards(uniqueResults, query, true);
       }
 
+      // Event listeners
       searchButton.addEventListener('click', performSearch);
       searchInput.addEventListener('keyup', (e) => {
         if (e.key === 'Enter') {
@@ -1292,11 +857,11 @@
       });
       clearSearch.addEventListener('click', () => {
         searchInput.value = '';
-        displayResults(foodPlaces, '', false);
+        displayCards(getRandomPlacesWithMenus());
       });
 
-      // Initial display: only pins on map, no cards in results
-      displayResults(foodPlaces, '', false);
+      // Initial display: show random places with menus
+      displayCards(getRandomPlacesWithMenus());
     });
   </script>
 </body>
